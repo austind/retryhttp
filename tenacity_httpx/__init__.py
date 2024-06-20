@@ -2,7 +2,7 @@ import httpx
 from tenacity import RetryCallState, WaitBaseT
 from tenacity import retry as tenacity_retry
 from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
-                      wait_exponential)
+                      stop_after_attempt, wait_exponential)
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -31,7 +31,7 @@ def _retry_http_errors(exc: Exception) -> bool:
     return False
 
 
-def retry(retry=None, wait=None, *dargs, **dkw):
+def retry(retry=None, wait=None, stop=None, *dargs, **dkw):
     if retry is None:
         retry = retry_any(
             retry_if_exception(_retry_http_errors),
@@ -41,8 +41,11 @@ def retry(retry=None, wait=None, *dargs, **dkw):
     if wait is None:
         pass  # TODO
 
+    if stop is None:
+        stop = stop_after_attempt(MAX_ATTEMPTS)
+
     def decorator(func):
-        return tenacity_retry(retry=retry, wait=wait, *dargs, **dkw)(func)
+        return tenacity_retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
 
     return decorator
 
