@@ -1,8 +1,13 @@
 import httpx
 from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
 from tenacity import retry as tenacity_retry
-from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
-                      stop_after_attempt, wait_exponential)
+from tenacity import (
+    retry_any,
+    retry_if_exception,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -23,6 +28,8 @@ RETRY_NETWORK_ERRORS = {
     httpx.ReadError,
     httpx.WriteError,
 }
+
+DEFAULT_WAIT_STRATEGY = wait_exponential(multiplier=0.5, max=30.0)
 
 
 def _retry_http_errors(exc: Exception) -> bool:
