@@ -1,5 +1,5 @@
 import httpx
-from tenacity import RetryCallState, WaitBaseT
+from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
 from tenacity import retry as tenacity_retry
 from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
                       stop_after_attempt, wait_exponential)
@@ -31,7 +31,14 @@ def _retry_http_errors(exc: Exception) -> bool:
     return False
 
 
-def retry(retry=None, wait=None, stop=None, *dargs, **dkw):
+def retry(
+    retry: RetryBaseT | None = None,
+    wait: WaitBaseT | None = None,
+    stop: StopBaseT | None = None,
+    use_retry_after_header: bool = True,
+    *dargs,
+    **dkw
+):
     if retry is None:
         retry = retry_any(
             retry_if_exception(_retry_http_errors),
