@@ -1,6 +1,9 @@
 import httpx
 from tenacity import retry
 
+# Default maximum attempts.
+MAX_ATTEMPTS = 3
+
 # Default potentially transient HTTP error statuses to retry.
 RETRY_HTTP_STATUSES = (
     httpx.codes.TOO_MANY_REQUESTS,
@@ -17,4 +20,3 @@ RETRY_NETWORK_ERRORS = (
     httpx.ReadError,
     httpx.WriteError,
 )
-
