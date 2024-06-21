@@ -56,6 +56,22 @@ class retry_if_network_error(retry_base):
         return exc in self.errors
 
 
+class retry_if_network_timeout(retry_base):
+    def __init__(
+        self,
+        timeouts: typing.Union[
+            typing.List[BaseException], typing.Tuple[BaseException], None
+        ] = None,
+    ) -> None:
+        if timeouts is None:
+            timeouts = RETRY_NETWORK_TIMEOUTS
+        self.timeouts = timeouts
+
+    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
+        exc = retry_state.outcome.exception()
+        return exc in self.timeouts
+
+
 class retry_status_code(retry_base):
     """Retry strategy based on HTTP status code.
 
