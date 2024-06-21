@@ -3,13 +3,13 @@ import typing
 import httpx
 import tenacity
 from tenacity.retry import retry_base
+from tenacity.wait import wait_base
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
 
-# Potentially transient HTTP error statuses to retry.
-RETRY_HTTP_STATUSES = {
-    httpx.codes.TOO_MANY_REQUESTS,
+# Potentially transient HTTP 5xx error statuses to retry.
+RETRY_SERVER_ERRORS = {
     httpx.codes.INTERNAL_SERVER_ERROR,
     httpx.codes.BAD_GATEWAY,
     httpx.codes.GATEWAY_TIMEOUT,
@@ -78,8 +78,8 @@ class retry_if_network_timeout(retry_base):
         return exc in self.timeouts
 
 
-class retry_status_code(retry_base):
-    """Retry strategy based on HTTP status code.
+class retry_server_errors(retry_base):
+    """Retry server errors (5xx).
 
     Accepts a list or tuple of status codes to retry (4xx or 5xx only).
     """
@@ -89,7 +89,7 @@ class retry_status_code(retry_base):
         status_codes: typing.Union[typing.List[int], typing.Tuple[int], None] = None,
     ) -> None:
         if status_codes is None:
-            status_codes = RETRY_HTTP_STATUSES
+            status_codes = RETRY_SERVER_ERRORS
         self.status_codes = status_codes
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
@@ -106,7 +106,7 @@ class wait_from_header(tenacity.wait.wait_base):
     """
 
     def __init__(
-        self, header: str = "Retry-After", default: tenacity._utils.time_unit_type = 1.0
+        self, header: str, default: tenacity._utils.time_unit_type = 1.0
     ) -> None:
         self.header = header
         self.default = default
@@ -116,6 +116,20 @@ class wait_from_header(tenacity.wait.wait_base):
         if isinstance(exc, httpx.HTTPStatusError):
             return float(exc.response.headers.get(self.header, self.default))
         return self.default
+
+
+class wait_context_aware(wait_base):
+    def __init__(
+        self,
+        server_error_wait: wait_base,
+        network_error_wait: wait_base,
+        network_timeout_wait: wait_base,
+        rate_limit_wait: wait_base = wait_from_header(header="Retry-After"),
+    ) -> None:
+        self.server_error_wait = server_error_wait
+        self.network_error_wait = network_error_wait
+        self.network_timeout_wait = network_timeout_wait
+        self.rate_limit_wait = rate_limit_wait
 
 
 def retry(
