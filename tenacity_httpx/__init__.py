@@ -1,13 +1,7 @@
 import typing
 
 import httpx
-from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
-from tenacity import retry as tenacity_retry
-from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
-                      stop_after_attempt, wait_combine, wait_exponential)
-from tenacity._utils import time_unit_type
-from tenacity.retry import retry_base
-from tenacity.wait import wait_base
+import tenacity
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -40,11 +34,11 @@ class retry_if_rate_limited:
     pass
 
 
-class retry_if_network_error:
+class retry_if_network_error(tenacity.retry.retry_base):
     pass
 
 
-class retry_status_code(retry_base):
+class retry_status_code(tenacity.retry.retry_base):
     """Retry strategy based on HTTP status code.
 
     Accepts a list or tuple of status codes to retry (4xx or 5xx only).
@@ -58,26 +52,26 @@ class retry_status_code(retry_base):
             status_codes = RETRY_HTTP_STATUSES
         self.status_codes = status_codes
 
-    def __call__(self, retry_state: RetryCallState) -> bool:
+    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
             return exc.response.status_code in self.status_codes
         return False
 
 
-class wait_from_header(wait_base):
+class wait_from_header(tenacity.wait.wait_base):
     """Wait strategy that derives the value from an HTTP header, if present.
 
     Default is used if header is not present.
     """
 
     def __init__(
-        self, header: str = "Retry-After", default: time_unit_type = 1.0
+        self, header: str = "Retry-After", default: tenacity._utils.time_unit_type = 1.0
     ) -> None:
         self.header = header
         self.default = default
 
-    def __call__(self, retry_state: RetryCallState) -> float:
+    def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
             return float(exc.response.headers.get(self.header, self.default))
@@ -85,26 +79,26 @@ class wait_from_header(wait_base):
 
 
 def retry(
-    retry: typing.Union[RetryBaseT, None] = None,
-    wait: typing.Union[WaitBaseT, None] = None,
-    stop: typing.Union[StopBaseT, None] = None,
+    retry: typing.Union[tenacity.RetryBaseT, None] = None,
+    wait: typing.Union[tenacity.WaitBaseT, None] = None,
+    stop: typing.Union[tenacity.StopBaseT, None] = None,
     *dargs,
-    **dkw
+    **dkw,
 ):
     if retry is None:
-        retry = retry_any(
-            retry_if_exception(_retry_http_errors),
-            retry_if_exception_type(RETRY_NETWORK_ERRORS),
+        retry = tenacity.retry_any(
+            tenacity.retry_if_exception(_retry_http_errors),
+            tenacity.retry_if_exception_type(RETRY_NETWORK_ERRORS),
         )
 
     if wait is None:
         pass  # TODO
 
     if stop is None:
-        stop = stop_after_attempt(MAX_ATTEMPTS)
+        stop = tenacity.stop_after_attempt(MAX_ATTEMPTS)
 
     def decorator(func):
-        return tenacity_retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
+        return tenacity.retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
 
     return decorator
 
