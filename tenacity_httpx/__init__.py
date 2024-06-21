@@ -4,12 +4,13 @@ from tenacity import retry as tenacity_retry
 from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
                       stop_after_attempt, wait_combine, wait_exponential)
 from tenacity._utils import time_unit_type
+from tenacity.retry import retry_base
 from tenacity.wait import wait_base
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
 
-# Default potentially transient HTTP error statuses to retry.
+# Potentially transient HTTP error statuses to retry.
 RETRY_HTTP_STATUSES = {
     httpx.codes.TOO_MANY_REQUESTS,
     httpx.codes.INTERNAL_SERVER_ERROR,
@@ -18,7 +19,7 @@ RETRY_HTTP_STATUSES = {
     httpx.codes.SERVICE_UNAVAILABLE,
 }
 
-# Default potentially transient network errors to retry.
+# Potentially transient network errors to retry.
 RETRY_NETWORK_ERRORS = {
     httpx.ConnectError,
     httpx.ConnectTimeout,
@@ -41,8 +42,22 @@ class retry_if_network_error:
     pass
 
 
-class retry_status_code:
-    pass
+class retry_status_code(retry_base):
+    """Retry strategy based on HTTP status code.
+
+    Accepts a list or tuple of status codes to retry (4xx or 5xx only).
+    """
+
+    def __init__(self, status_codes: list[int] | tuple[int] | None = None) -> None:
+        if status_codes is None:
+            status_codes = RETRY_HTTP_STATUSES
+        self.status_codes = status_codes
+
+    def __call__(self, retry_state: RetryCallState) -> bool:
+        exc = retry_state.outcome.exception()
+        if isinstance(exc, httpx.HTTPStatusError):
+            return exc.response.status_code in self.status_codes
+        return False
 
 
 class wait_from_header(wait_base):
