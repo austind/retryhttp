@@ -2,7 +2,7 @@ import httpx
 from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
 from tenacity import retry as tenacity_retry
 from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
-                      stop_after_attempt, wait_exponential)
+                      stop_after_attempt, wait_combine, wait_exponential)
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -24,8 +24,6 @@ RETRY_NETWORK_ERRORS = {
     httpx.WriteError,
 }
 
-DEFAULT_WAIT_STRATEGY = wait_exponential(multiplier=0.5, max=30.0)
-
 
 def _retry_http_errors(exc: Exception) -> bool:
     if isinstance(exc, httpx.HTTPStatusError):
@@ -33,11 +31,33 @@ def _retry_http_errors(exc: Exception) -> bool:
     return False
 
 
+class retry_if_rate_limited:
+    pass
+
+
+class retry_if_network_error:
+    pass
+
+
+class retry_status_code:
+    pass
+
+
+def wait_retry_after_header(retry_state: RetryCallState) -> float:
+    last_exception = retry_state.outcome.exception()
+    if (
+        isinstance(last_exception, httpx.HTTPStatusError)
+        and last_exception.response.status_code == httpx.codes.TOO_MANY_REQUESTS
+    ):
+        return float(last_exception.response.headers.get("Retry-After", 1.0))
+    else:
+        return 0
+
+
 def retry(
     retry: RetryBaseT | None = None,
     wait: WaitBaseT | None = None,
     stop: StopBaseT | None = None,
-    use_retry_after_header: bool = True,
     *dargs,
     **dkw
 ):
