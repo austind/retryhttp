@@ -34,6 +34,7 @@ RETRY_NETWORK_TIMEOUTS = {
 
 class retry_if_rate_limited(retry_base):
     """Retry if rate limited (429 Too Many Requests)."""
+
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
@@ -42,6 +43,8 @@ class retry_if_rate_limited(retry_base):
 
 
 class retry_if_network_error(retry_base):
+    """Retry network errors."""
+
     def __init__(
         self,
         errors: typing.Union[
@@ -58,6 +61,8 @@ class retry_if_network_error(retry_base):
 
 
 class retry_if_network_timeout(retry_base):
+    """Retry network timeouts."""
+
     def __init__(
         self,
         timeouts: typing.Union[
@@ -122,8 +127,9 @@ def retry(
 ):
     if retry is None:
         retry = tenacity.retry_any(
-            tenacity.retry_if_exception(_retry_http_errors),
-            tenacity.retry_if_exception_type(RETRY_NETWORK_ERRORS),
+            retry_if_rate_limited,
+            retry_if_network_error,
+            retry_if_network_timeout,
         )
 
     if wait is None:
