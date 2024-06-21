@@ -1,3 +1,5 @@
+import typing
+
 import httpx
 from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
 from tenacity import retry as tenacity_retry
@@ -48,7 +50,10 @@ class retry_status_code(retry_base):
     Accepts a list or tuple of status codes to retry (4xx or 5xx only).
     """
 
-    def __init__(self, status_codes: list[int] | tuple[int] | None = None) -> None:
+    def __init__(
+        self,
+        status_codes: typing.Union[typing.List[int], typing.Tuple[int], None] = None,
+    ) -> None:
         if status_codes is None:
             status_codes = RETRY_HTTP_STATUSES
         self.status_codes = status_codes
@@ -80,9 +85,9 @@ class wait_from_header(wait_base):
 
 
 def retry(
-    retry: RetryBaseT | None = None,
-    wait: WaitBaseT | None = None,
-    stop: StopBaseT | None = None,
+    retry: typing.Union[RetryBaseT, None] = None,
+    wait: typing.Union[WaitBaseT, None] = None,
+    stop: typing.Union[StopBaseT, None] = None,
     *dargs,
     **dkw
 ):
