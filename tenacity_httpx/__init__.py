@@ -36,8 +36,13 @@ def _retry_http_errors(exc: BaseException) -> bool:
     return False
 
 
-class retry_if_rate_limited:
-    pass
+class retry_if_rate_limited(retry_base):
+
+    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
+        exc = retry_state.outcome.exception()
+        if isinstance(exc, httpx.HTTPStatusError):
+            return exc.response.status_code == httpx.codes.TOO_MANY_REQUESTS
+        return False
 
 
 class retry_if_network_error(retry_base):
