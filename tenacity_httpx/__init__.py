@@ -9,7 +9,7 @@ from tenacity.wait import wait_base
 MAX_ATTEMPTS = 3
 
 # Potentially transient HTTP 5xx error statuses to retry.
-RETRY_SERVER_ERRORS = {
+RETRY_SERVER_ERROR_CODES = {
     httpx.codes.INTERNAL_SERVER_ERROR,
     httpx.codes.BAD_GATEWAY,
     httpx.codes.GATEWAY_TIMEOUT,
@@ -32,14 +32,27 @@ RETRY_NETWORK_TIMEOUTS = {
 }
 
 
+def _is_rate_limited(exc: BaseException) -> bool:
+    if isinstance(exc, httpx.HTTPStatusError):
+        return exc.response.status_code == httpx.codes.TOO_MANY_REQUESTS
+    return False
+
+
+def _is_server_error(
+    exc: BaseException,
+    error_status_codes: typing.Union[typing.Tuple[int], typing.List[int]],
+) -> bool:
+    if isinstance(exc, httpx.HTTPStatusError):
+        status_code = exc.response.status_code
+        return status_code in error_status_codes
+
+
 class retry_if_rate_limited(retry_base):
     """Retry if rate limited (429 Too Many Requests)."""
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
-        if isinstance(exc, httpx.HTTPStatusError):
-            return exc.response.status_code == httpx.codes.TOO_MANY_REQUESTS
-        return False
+        return _is_rate_limited(exc)
 
 
 class retry_if_network_error(retry_base):
@@ -78,7 +91,7 @@ class retry_if_network_timeout(retry_base):
         return exc in self.timeouts
 
 
-class retry_server_errors(retry_base):
+class retry_if_server_error(retry_base):
     """Retry server errors (5xx).
 
     Accepts a list or tuple of status codes to retry (4xx or 5xx only).
@@ -86,43 +99,19 @@ class retry_server_errors(retry_base):
 
     def __init__(
         self,
-        status_codes: typing.Union[typing.List[int], typing.Tuple[int], None] = None,
+        error_status_codes: typing.Union[
+            typing.List[int], typing.Tuple[int], None
+        ] = None,
     ) -> None:
-        if status_codes is None:
-            status_codes = RETRY_SERVER_ERRORS
-        self.status_codes = status_codes
+        if error_status_codes is None:
+            error_status_codes = RETRY_SERVER_ERROR_CODES
+        self.error_status_codes = error_status_codes
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
-            return exc.response.status_code in self.status_codes
+            return exc.response.status_code in self.error_status_codes
         return False
-
-
-class retry_http_failures(retry_base):
-    def __init__(
-        self,
-        retry_server_errors: bool = True,
-        retry_network_errors: bool = True,
-        retry_network_timeouts: bool = True,
-        retry_rate_limited: bool = True,
-        server_errors: typing.Union[
-            typing.List[int], typing.Tuple[int], int, None
-        ] = None,
-        network_errors: typing.Union[
-            typing.List[BaseException], typing.Tuple[BaseException], None
-        ] = None,
-        network_timeouts: typing.Union[
-            typing.List[BaseException], typing.Tuple[BaseException], None
-        ] = None,
-    ) -> None:
-        self.retry_server_errors = retry_server_errors
-        self.retry_network_errors = retry_network_errors
-        self.retry_network_timeouts = retry_network_timeouts
-        self.retry_rate_limited = retry_rate_limited
-        self.server_errors = server_errors
-        self.network_errors = network_errors
-        self.network_timeouts = network_timeouts
 
 
 class wait_from_header(tenacity.wait.wait_base):
@@ -132,16 +121,18 @@ class wait_from_header(tenacity.wait.wait_base):
     """
 
     def __init__(
-        self, header: str, default: tenacity._utils.time_unit_type = 1.0
+        self, header: str, fallback: wait_base = tenacity.wait_exponential_jitter()
     ) -> None:
         self.header = header
-        self.default = default
+        self.fallback = fallback
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
-            return float(exc.response.headers.get(self.header, self.default))
-        return self.default
+            return float(
+                exc.response.headers.get(self.header, self.fallback(retry_state))
+            )
+        return self.fallback(retry_state)
 
 
 class wait_context_aware(wait_base):
@@ -149,36 +140,93 @@ class wait_context_aware(wait_base):
 
     def __init__(
         self,
-        wait_server_error: wait_base,
-        wait_network_error: wait_base,
-        wait_network_timeout: wait_base,
-        wait_rate_limit: wait_base = wait_from_header(header="Retry-After"),
+        wait_server_errors: wait_base = tenacity.wait_exponential_jitter(),
+        wait_network_errors: wait_base = tenacity.wait_exponential(),
+        wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
+        wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
+        error_status_codes: typing.Union[typing.Tuple[int], int, None] = None,
+        network_errors: typing.Union[typing.Tuple[BaseException], None] = None,
+        network_timeouts: typing.Union[typing.Tuple[BaseException], None] = None,
     ) -> None:
-        self.wait_server_error = wait_server_error
-        self.wait_network_error = wait_network_error
-        self.wait_network_timeout = wait_network_timeout
-        self.wait_rate_limit = wait_rate_limit
+        if server_errors is None:
+            server_errors = RETRY_SERVER_ERROR_CODES
+        if network_errors is None:
+            network_errors = RETRY_NETWORK_ERRORS
+        if network_timeouts is None:
+            network_timeouts = RETRY_NETWORK_TIMEOUTS
+        self.wait_server_errors = wait_server_errors
+        self.wait_network_errors = wait_network_errors
+        self.wait_network_timeouts = wait_network_timeouts
+        self.wait_rate_limited = wait_rate_limited
+        self.error_status_codes = error_status_codes
+        self.network_errors = network_errors
+        self.network_timeouts = network_timeouts
+
+    def __call__(self, retry_state: tenacity.RetryCallState) -> float:
+        exc = retry_state.outcome.exception()
+        if _is_server_error(exc=exc, error_status_codes=self.error_status_codes):
+            return self.wait_server_errors(retry_state)
+        elif isinstance(exc, self.network_errors):
+            return self.wait_network_errors(retry_state)
+        elif isinstance(exc, self.network_timeouts):
+            return self.wait_network_timeouts(retry_state)
+        elif _is_rate_limited(exc):
+            return self.wait_rate_limited(retry_state)
+        else:
+            return 0
 
 
-def retry(
-    retry: typing.Union[tenacity.RetryBaseT, None] = None,
-    wait: typing.Union[tenacity.WaitBaseT, None] = None,
-    stop: typing.Union[tenacity.StopBaseT, None] = None,
+def retry_http_failures(
+    max_attempt_number: int = 3,
+    retry_server_errors: bool = True,
+    retry_network_errors: bool = True,
+    retry_network_timeouts: bool = True,
+    retry_rate_limited: bool = True,
+    wait_server_errors: wait_base = tenacity.wait_exponential_jitter(),
+    wait_network_errors: wait_base = tenacity.wait_exponential(),
+    wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
+    wait_rate_limited: wait_base = wait_from_header("Retry-After"),
+    server_errors: typing.Union[int, typing.Tuple[int], typing.List[int], None] = None,
+    network_errors: typing.Union[
+        BaseException, typing.Tuple[BaseException], None
+    ] = None,
+    network_timeouts: typing.Union[
+        BaseException, typing.Tuple[BaseException], None
+    ] = None,
     *dargs,
     **dkw,
 ):
-    if retry is None:
-        retry = tenacity.retry_any(
-            retry_if_rate_limited(),
-            retry_if_network_error(),
-            retry_if_network_timeout(),
+    if server_errors is None:
+        server_errors = RETRY_SERVER_ERROR_CODES
+    if network_errors is None:
+        network_errors = RETRY_NETWORK_ERRORS
+    if network_timeouts is None:
+        network_timeouts = RETRY_NETWORK_TIMEOUTS
+
+    retry_strategies = []
+    if retry_server_errors:
+        retry_strategies.append(
+            retry_if_server_error(server_errors=retry_server_errors)
         )
+    if retry_network_errors:
+        retry_strategies.append(retry_if_network_error(errors=network_errors))
+    if retry_network_timeouts:
+        retry_strategies.append(retry_if_network_timeout(timeouts=network_timeouts))
+    if retry_rate_limited:
+        retry_strategies.append(retry_if_rate_limited())
 
-    if wait is None:
-        wait = wait_context_aware()
+    retry = dkw.get("retry") or tenacity.retry_any(*retry_strategies)
 
-    if stop is None:
-        stop = tenacity.stop_after_attempt(MAX_ATTEMPTS)
+    # We don't need to conditionally build our wait strategy since each strategy
+    # will only apply if the corresponding retry strategy is in use.
+    wait = dkw.get("wait") or wait_context_aware(
+        wait_server_errors=wait_server_errors,
+        wait_network_errors=wait_network_errors,
+        wait_network_timeouts=wait_network_timeouts,
+        wait_rate_limited=wait_rate_limited,
+    )
+
+    stop = dkw.get("stop") or tenacity.stop_after_attempt(max_attempt_number)
 
     def decorator(func):
         return tenacity.retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
