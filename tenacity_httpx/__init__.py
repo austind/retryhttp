@@ -123,15 +123,15 @@ class wait_context_aware(wait_base):
 
     def __init__(
         self,
-        server_error_wait: wait_base,
-        network_error_wait: wait_base,
-        network_timeout_wait: wait_base,
-        rate_limit_wait: wait_base = wait_from_header(header="Retry-After"),
+        wait_server_error: wait_base,
+        wait_network_error: wait_base,
+        wait_network_timeout: wait_base,
+        wait_rate_limit: wait_base = wait_from_header(header="Retry-After"),
     ) -> None:
-        self.server_error_wait = server_error_wait
-        self.network_error_wait = network_error_wait
-        self.network_timeout_wait = network_timeout_wait
-        self.rate_limit_wait = rate_limit_wait
+        self.wait_server_error = wait_server_error
+        self.wait_network_error = wait_network_error
+        self.wait_network_timeout = wait_network_timeout
+        self.wait_rate_limit = wait_rate_limit
 
 
 def retry(
