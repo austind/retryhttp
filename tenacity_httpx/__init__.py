@@ -119,6 +119,8 @@ class wait_from_header(tenacity.wait.wait_base):
 
 
 class wait_context_aware(wait_base):
+    """Applies different wait strategies based on the type of error."""
+
     def __init__(
         self,
         server_error_wait: wait_base,
@@ -141,13 +143,13 @@ def retry(
 ):
     if retry is None:
         retry = tenacity.retry_any(
-            retry_if_rate_limited,
-            retry_if_network_error,
-            retry_if_network_timeout,
+            retry_if_rate_limited(),
+            retry_if_network_error(),
+            retry_if_network_timeout(),
         )
 
     if wait is None:
-        pass  # TODO
+        wait = wait_context_aware()
 
     if stop is None:
         stop = tenacity.stop_after_attempt(MAX_ATTEMPTS)
