@@ -30,12 +30,6 @@ RETRY_NETWORK_TIMEOUTS = {
 }
 
 
-def _retry_http_errors(exc: BaseException) -> bool:
-    if isinstance(exc, httpx.HTTPStatusError):
-        return exc.response.status_code in RETRY_HTTP_STATUSES
-    return False
-
-
 class retry_if_rate_limited(retry_base):
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
