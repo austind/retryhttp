@@ -1,0 +1,53 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+# PEP 508 specifications for PEP 518.
+# Banned setuptools versions have well-known issues
+requires = [
+  "setuptools >= 21.0.0,!=24.0.0,!=34.0.0,!=34.0.1,!=34.0.2,!=34.0.3,!=34.1.0,!=34.1.1,!=34.2.0,!=34.3.0,!=34.3.1,!=34.3.2,!=36.2.0",  # PSF/ZPL
+  "setuptools_scm[toml]>=3.4",
+]
+build-backend="setuptools.build_meta"
+
+[project]
+name = "tenacity_httpx"
+version = "0.1.0"
+description = "Retry common HTTPX errors"
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  {name = "Austin de Coup-Crank", email = "austindcc@gmail.com"},
+]
+maintainers = [
+  {name = "Austin de Coup-Crank", email = "austindcc@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "httpx",
+    "tenacity"
+]
+
+[project.urls]
+Homepage = "https://github.com/austind/tenacity-httpx"
+Repository = "https://github.com/austind/tenacity-httpx.git"
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py38"
+
+[tool.black]
+line-length = 88
