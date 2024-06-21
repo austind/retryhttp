@@ -3,6 +3,8 @@ from tenacity import RetryBaseT, RetryCallState, StopBaseT, WaitBaseT
 from tenacity import retry as tenacity_retry
 from tenacity import (retry_any, retry_if_exception, retry_if_exception_type,
                       stop_after_attempt, wait_combine, wait_exponential)
+from tenacity._utils import time_unit_type
+from tenacity.wait import wait_base
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -43,15 +45,23 @@ class retry_status_code:
     pass
 
 
-def wait_retry_after_header(retry_state: RetryCallState) -> float:
-    last_exception = retry_state.outcome.exception()
-    if (
-        isinstance(last_exception, httpx.HTTPStatusError)
-        and last_exception.response.status_code == httpx.codes.TOO_MANY_REQUESTS
-    ):
-        return float(last_exception.response.headers.get("Retry-After", 1.0))
-    else:
-        return 0
+class wait_from_header(wait_base):
+    """Wait strategy that derives the value from an HTTP header, if present.
+
+    Default is used if header is not present.
+    """
+
+    def __init__(
+        self, header: str = "Retry-After", default: time_unit_type = 1.0
+    ) -> None:
+        self.header = header
+        self.default = default
+
+    def __call__(self, retry_state: RetryCallState) -> float:
+        exc = retry_state.outcome.exception()
+        if isinstance(exc, httpx.HTTPStatusError):
+            return float(exc.response.headers.get(self.header, self.default))
+        return self.default
 
 
 def retry(
