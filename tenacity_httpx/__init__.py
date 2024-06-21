@@ -2,6 +2,7 @@ import typing
 
 import httpx
 import tenacity
+from tenacity.retry import retry_base
 
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
@@ -18,13 +19,18 @@ RETRY_HTTP_STATUSES = {
 # Potentially transient network errors to retry.
 RETRY_NETWORK_ERRORS = {
     httpx.ConnectError,
-    httpx.ConnectTimeout,
     httpx.ReadError,
     httpx.WriteError,
 }
 
+RETRY_NETWORK_TIMEOUTS = {
+    httpx.ConnectTimeout,
+    httpx.ReadTimeout,
+    httpx.WriteTimeout,
+}
 
-def _retry_http_errors(exc: Exception) -> bool:
+
+def _retry_http_errors(exc: BaseException) -> bool:
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code in RETRY_HTTP_STATUSES
     return False
@@ -34,11 +40,23 @@ class retry_if_rate_limited:
     pass
 
 
-class retry_if_network_error(tenacity.retry.retry_base):
-    pass
+class retry_if_network_error(retry_base):
+    def __init__(
+        self,
+        errors: typing.Union[
+            typing.List[BaseException], typing.Tuple[BaseException], None
+        ] = None,
+    ) -> None:
+        if errors is None:
+            errors = RETRY_NETWORK_ERRORS
+        self.errors = errors
+
+    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
+        exc = retry_state.outcome.exception()
+        return exc in self.errors
 
 
-class retry_status_code(tenacity.retry.retry_base):
+class retry_status_code(retry_base):
     """Retry strategy based on HTTP status code.
 
     Accepts a list or tuple of status codes to retry (4xx or 5xx only).
