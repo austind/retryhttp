@@ -99,6 +99,32 @@ class retry_server_errors(retry_base):
         return False
 
 
+class retry_http_failures(retry_base):
+    def __init__(
+        self,
+        retry_server_errors: bool = True,
+        retry_network_errors: bool = True,
+        retry_network_timeouts: bool = True,
+        retry_rate_limited: bool = True,
+        server_errors: typing.Union[
+            typing.List[int], typing.Tuple[int], int, None
+        ] = None,
+        network_errors: typing.Union[
+            typing.List[BaseException], typing.Tuple[BaseException], None
+        ] = None,
+        network_timeouts: typing.Union[
+            typing.List[BaseException], typing.Tuple[BaseException], None
+        ] = None,
+    ) -> None:
+        self.retry_server_errors = retry_server_errors
+        self.retry_network_errors = retry_network_errors
+        self.retry_network_timeouts = retry_network_timeouts
+        self.retry_rate_limited = retry_rate_limited
+        self.server_errors = server_errors
+        self.network_errors = network_errors
+        self.network_timeouts = network_timeouts
+
+
 class wait_from_header(tenacity.wait.wait_base):
     """Wait strategy that derives the value from an HTTP header, if present.
 
