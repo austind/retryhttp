@@ -17,6 +17,8 @@ RETRY_HTTP_STATUSES = {
 }
 
 # Potentially transient network errors to retry.
+# We could just use httpx.NetworkError, but since httpx.CloseError isn't
+# usually important to retry, we use these instead.
 RETRY_NETWORK_ERRORS = {
     httpx.ConnectError,
     httpx.ReadError,
@@ -31,7 +33,7 @@ RETRY_NETWORK_TIMEOUTS = {
 
 
 class retry_if_rate_limited(retry_base):
-
+    """Retry if rate limited (429 Too Many Requests)."""
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
         if isinstance(exc, httpx.HTTPStatusError):
