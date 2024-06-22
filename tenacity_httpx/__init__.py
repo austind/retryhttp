@@ -50,6 +50,7 @@ def _is_server_error(
 ) -> bool:
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code in status_codes
+    return False
 
 
 class retry_if_rate_limited(retry_base):
