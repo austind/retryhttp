@@ -46,7 +46,7 @@ def _is_server_error(
     exc: BaseException,
     status_codes: typing.Union[
         typing.Tuple[ServerErrorCode], typing.List[ServerErrorCode]
-    ],
+    ] = tuple(range(500, 600)),
 ) -> bool:
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code in status_codes
