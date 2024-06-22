@@ -179,7 +179,7 @@ class wait_context_aware(wait_base):
             return 0
 
 
-def retry_http_failures(
+def retry_http_errors(
     max_attempt_number: int = 3,
     retry_server_errors: bool = True,
     retry_network_errors: bool = True,
