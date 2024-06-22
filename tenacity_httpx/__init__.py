@@ -3,6 +3,7 @@ import typing
 import httpx
 import tenacity
 from pydantic import Field
+from tenacity import retry
 from tenacity.retry import retry_base
 from tenacity.wait import wait_base
 
@@ -140,7 +141,7 @@ class wait_context_aware(wait_base):
         wait_network_errors: wait_base = tenacity.wait_exponential(),
         wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
-        status_codes: typing.Union[typing.Tuple[int], int, None] = None,
+        server_status_codes: typing.Union[typing.Tuple[int], int, None] = None,
         network_errors: typing.Union[typing.Tuple[BaseException], None] = None,
         network_timeouts: typing.Union[typing.Tuple[BaseException], None] = None,
     ) -> None:
@@ -154,13 +155,13 @@ class wait_context_aware(wait_base):
         self.wait_network_errors = wait_network_errors
         self.wait_network_timeouts = wait_network_timeouts
         self.wait_rate_limited = wait_rate_limited
-        self.status_codes = status_codes
+        self.server_status_codes = server_status_codes
         self.network_errors = network_errors
         self.network_timeouts = network_timeouts
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         exc = retry_state.outcome.exception()
-        if _is_server_error(exc=exc, status_codes=self.status_codes):
+        if _is_server_error(exc=exc, status_codes=self.server_status_codes):
             return self.wait_server_errors(retry_state)
         elif isinstance(exc, self.network_errors):
             return self.wait_network_errors(retry_state)
@@ -225,7 +226,7 @@ def retry_http_failures(
     stop = dkw.get("stop") or tenacity.stop_after_attempt(max_attempt_number)
 
     def decorator(func):
-        return tenacity.retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
+        return retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
 
     return decorator
 
