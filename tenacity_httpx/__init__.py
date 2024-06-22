@@ -57,8 +57,7 @@ class retry_if_rate_limited(retry_base):
     """Retry if rate limited (429 Too Many Requests)."""
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
-        exc = retry_state.outcome.exception()
-        return _is_rate_limited(exc)
+        return _is_rate_limited(retry_state.outcome.exception())
 
 
 class retry_if_network_error(retry_base):
