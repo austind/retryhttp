@@ -15,7 +15,7 @@ F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 MAX_ATTEMPTS = 3
 
 # Potentially transient HTTP 5xx error statuses to retry.
-RETRY_SERVER_STATUS_CODES = {
+RETRY_SERVER_ERROR_CODES = {
     httpx.codes.INTERNAL_SERVER_ERROR,
     httpx.codes.BAD_GATEWAY,
     httpx.codes.GATEWAY_TIMEOUT,
@@ -100,17 +100,17 @@ class retry_if_server_error(retry_base):
 
     def __init__(
         self,
-        status_codes: typing.Union[
+        server_error_codes: typing.Union[
             typing.List[ServerErrorCode], typing.Tuple[ServerErrorCode], None
         ] = None,
     ) -> None:
-        if status_codes is None:
-            status_codes = RETRY_SERVER_STATUS_CODES
-        self.status_codes = status_codes
+        if server_error_codes is None:
+            server_error_codes = RETRY_SERVER_ERROR_CODES
+        self.server_error_codes = server_error_codes
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
         exc = retry_state.outcome.exception()
-        return _is_server_error(exc, self.status_codes)
+        return _is_server_error(exc, self.server_error_codes)
 
 
 class wait_from_header(tenacity.wait.wait_base):
@@ -143,12 +143,12 @@ class wait_context_aware(wait_base):
         wait_network_errors: wait_base = tenacity.wait_exponential(),
         wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
-        server_status_codes: typing.Union[typing.Tuple[int], int, None] = None,
+        server_error_codes: typing.Union[typing.Tuple[int], int, None] = None,
         network_errors: typing.Union[typing.Tuple[BaseException], None] = None,
         network_timeouts: typing.Union[typing.Tuple[BaseException], None] = None,
     ) -> None:
-        if server_status_codes is None:
-            server_status_codes = RETRY_SERVER_STATUS_CODES
+        if server_error_codes is None:
+            server_error_codes = RETRY_SERVER_ERROR_CODES
         if network_errors is None:
             network_errors = RETRY_NETWORK_ERRORS
         if network_timeouts is None:
@@ -157,13 +157,13 @@ class wait_context_aware(wait_base):
         self.wait_network_errors = wait_network_errors
         self.wait_network_timeouts = wait_network_timeouts
         self.wait_rate_limited = wait_rate_limited
-        self.server_status_codes = server_status_codes
+        self.server_error_codes = server_error_codes
         self.network_errors = network_errors
         self.network_timeouts = network_timeouts
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         exc = retry_state.outcome.exception()
-        if _is_server_error(exc=exc, status_codes=self.server_status_codes):
+        if _is_server_error(exc=exc, status_codes=self.server_error_codes):
             return self.wait_server_errors(retry_state)
         elif isinstance(exc, self.network_errors):
             return self.wait_network_errors(retry_state)
@@ -185,7 +185,9 @@ def retry_http_failures(
     wait_network_errors: wait_base = tenacity.wait_exponential(multiplier=1, max=15),
     wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
     wait_rate_limited: wait_base = wait_from_header("Retry-After"),
-    server_errors: typing.Union[int, typing.Tuple[int], typing.List[int], None] = None,
+    server_error_codes: typing.Union[
+        int, typing.Tuple[int], typing.List[int], None
+    ] = None,
     network_errors: typing.Union[
         BaseException, typing.Tuple[BaseException], None
     ] = None,
@@ -195,8 +197,8 @@ def retry_http_failures(
     *dargs,
     **dkw,
 ) -> F:
-    if server_errors is None:
-        server_errors = RETRY_SERVER_STATUS_CODES
+    if server_error_codes is None:
+        server_error_codes = RETRY_SERVER_ERROR_CODES
     if network_errors is None:
         network_errors = RETRY_NETWORK_ERRORS
     if network_timeouts is None:
@@ -205,7 +207,7 @@ def retry_http_failures(
     retry_strategies = []
     if retry_server_errors:
         retry_strategies.append(
-            retry_if_server_error(server_errors=retry_server_errors)
+            retry_if_server_error(server_error_codes=server_error_codes)
         )
     if retry_network_errors:
         retry_strategies.append(retry_if_network_error(errors=network_errors))
