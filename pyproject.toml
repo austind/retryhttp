@@ -41,6 +41,14 @@ dependencies = [
     "tenacity"
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "respx",
+  "ruff",
+  "nox",
+]
+
 [project.urls]
 Homepage = "https://github.com/austind/tenacity-httpx"
 Repository = "https://github.com/austind/tenacity-httpx.git"
@@ -49,6 +57,3 @@ Repository = "https://github.com/austind/tenacity-httpx.git"
 line-length = 88
 indent-width = 4
 target-version = "py38"
-
-[tool.black]
-line-length = 88
