@@ -9,6 +9,8 @@ from tenacity.wait import wait_base
 
 ServerErrorCode = typing.Annotated[int, Field(ge=500, le=599)]
 
+F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
+
 # Default maximum attempts.
 MAX_ATTEMPTS = 3
 
@@ -145,8 +147,8 @@ class wait_context_aware(wait_base):
         network_errors: typing.Union[typing.Tuple[BaseException], None] = None,
         network_timeouts: typing.Union[typing.Tuple[BaseException], None] = None,
     ) -> None:
-        if server_errors is None:
-            server_errors = RETRY_SERVER_STATUS_CODES
+        if server_status_codes is None:
+            server_status_codes = RETRY_SERVER_STATUS_CODES
         if network_errors is None:
             network_errors = RETRY_NETWORK_ERRORS
         if network_timeouts is None:
@@ -179,8 +181,8 @@ def retry_http_failures(
     retry_network_errors: bool = True,
     retry_network_timeouts: bool = True,
     retry_rate_limited: bool = True,
-    wait_server_errors: wait_base = tenacity.wait_exponential_jitter(),
-    wait_network_errors: wait_base = tenacity.wait_exponential(),
+    wait_server_errors: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
+    wait_network_errors: wait_base = tenacity.wait_exponential(multiplier=1, max=15),
     wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
     wait_rate_limited: wait_base = wait_from_header("Retry-After"),
     server_errors: typing.Union[int, typing.Tuple[int], typing.List[int], None] = None,
@@ -192,7 +194,7 @@ def retry_http_failures(
     ] = None,
     *dargs,
     **dkw,
-):
+) -> F:
     if server_errors is None:
         server_errors = RETRY_SERVER_STATUS_CODES
     if network_errors is None:
@@ -225,7 +227,7 @@ def retry_http_failures(
 
     stop = dkw.get("stop") or tenacity.stop_after_attempt(max_attempt_number)
 
-    def decorator(func):
+    def decorator(func: F) -> F:
         return retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
 
     return decorator
