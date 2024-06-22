@@ -187,7 +187,9 @@ def retry_http_failures(
     retry_rate_limited: bool = True,
     wait_server_errors: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
     wait_network_errors: wait_base = tenacity.wait_exponential(multiplier=1, max=15),
-    wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
+    wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(
+        initial=1, max=15
+    ),
     wait_rate_limited: wait_base = wait_from_header("Retry-After"),
     server_error_codes: typing.Union[
         int, typing.Tuple[int], typing.List[int], None
