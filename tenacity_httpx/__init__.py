@@ -113,14 +113,16 @@ class retry_if_server_error(retry_base):
         return _is_server_error(exc, self.server_error_codes)
 
 
-class wait_from_header(tenacity.wait.wait_base):
+class wait_from_header(wait_base):
     """Wait strategy that derives the value from an HTTP header, if present.
 
-    Default is used if header is not present.
+    Fallback is used if header is not present.
     """
 
     def __init__(
-        self, header: str, fallback: wait_base = tenacity.wait_exponential_jitter()
+        self,
+        header: str,
+        fallback: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
     ) -> None:
         self.header = header
         self.fallback = fallback
@@ -143,7 +145,9 @@ class wait_context_aware(wait_base):
         wait_network_errors: wait_base = tenacity.wait_exponential(),
         wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
-        server_error_codes: typing.Union[typing.Tuple[int], int, None] = None,
+        server_error_codes: typing.Union[
+            typing.List[int], typing.Tuple[int], int, None
+        ] = None,
         network_errors: typing.Union[typing.Tuple[BaseException], None] = None,
         network_timeouts: typing.Union[typing.Tuple[BaseException], None] = None,
     ) -> None:
@@ -197,6 +201,13 @@ def retry_http_failures(
     *dargs,
     **dkw,
 ) -> F:
+    """Retry potentially-transient HTTP errors with sensible default behavior.
+
+    Wraps tenacity.retry() with retry, wait, and stop strategies optimized for
+    retrying potentially-transient HTTP errors with sensible defaults, which are
+    all configurable.
+
+    """
     if server_error_codes is None:
         server_error_codes = RETRY_SERVER_ERROR_CODES
     if network_errors is None:
