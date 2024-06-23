@@ -11,7 +11,7 @@ build-backend="setuptools.build_meta"
 [project]
 name = "tenacity_httpx"
 version = "0.1.0"
-description = "Retry common HTTPX errors"
+description = "Retry potentially-transient errors with tenacity and httpx"
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.8"
@@ -44,6 +44,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest",
+  "pytest-xdist",
   "respx",
   "ruff",
   "nox",
