@@ -34,5 +34,7 @@ def test_rate_limited_success():
         ]
     )
     response = retry_rate_limited()
+    assert route.calls[0].response.status_code == 429
+    assert route.calls[1].response.status_code == 429
     assert response.status_code == 200
     assert route.call_count == 3
