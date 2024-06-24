@@ -174,7 +174,7 @@ class wait_context_aware(wait_base):
         wait_server_errors: wait_base = tenacity.wait_exponential_jitter(),
         wait_network_errors: wait_base = tenacity.wait_exponential(),
         wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
-        wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
+        wait_rate_limited: wait_base = wait_retry_after_header(),
         server_error_codes: Union[Sequence[int], int, None] = None,
         network_errors: Union[Tuple[Type[BaseException], ...], None] = None,
         network_timeouts: Union[Tuple[Type[BaseException], ...], None] = None,
@@ -218,7 +218,7 @@ def retry_http_errors(
     wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(
         initial=1, max=15
     ),
-    wait_rate_limited: wait_base = wait_from_header("Retry-After"),
+    wait_rate_limited: wait_base = wait_retry_after_header(),
     server_error_codes: Union[Sequence[int], int, None] = None,
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None
