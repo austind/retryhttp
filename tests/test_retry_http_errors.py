@@ -2,7 +2,7 @@ import httpx
 import respx
 from tenacity_httpx import retry_http_errors
 import pytest
-import tenacity
+from tenacity import RetryError
 
 MOCK_URL = "https://example.com/"
 
@@ -45,7 +45,7 @@ def test_default_args_connect_error():
         httpx.ConnectError,
         httpx.ConnectError,
     ]
-    with pytest.raises(tenacity.RetryError):
+    with pytest.raises(RetryError):
         default_args()
 
     assert route.call_count == 3
@@ -73,7 +73,7 @@ def test_max_attempts():
     route = respx.get(MOCK_URL).mock(
         side_effect=[httpx.ConnectError, httpx.ConnectTimeout, httpx.Response(200)]
     )
-    with pytest.raises(tenacity.RetryError):
+    with pytest.raises(RetryError):
         retry_max_2()
     assert route.call_count == 2
 
