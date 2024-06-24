@@ -6,7 +6,7 @@ from typing import (
     Type,
     Union,
     Optional,
-    Iterable,
+    Sequence,
 )
 
 import httpx
@@ -21,12 +21,12 @@ F = TypeVar("F", bound=Callable[..., Any])
 MAX_ATTEMPTS = 3
 
 # Potentially transient HTTP 5xx error statuses to retry.
-RETRY_SERVER_ERROR_CODES = {
+RETRY_SERVER_ERROR_CODES = (
     httpx.codes.INTERNAL_SERVER_ERROR,
     httpx.codes.BAD_GATEWAY,
     httpx.codes.GATEWAY_TIMEOUT,
     httpx.codes.SERVICE_UNAVAILABLE,
-}
+)
 
 # Potentially transient network errors to retry.
 # We could just use httpx.NetworkError, but since httpx.CloseError isn't
@@ -50,10 +50,10 @@ def _is_rate_limited(exc: Union[BaseException, None]) -> bool:
 
 def _is_server_error(
     exc: Optional[BaseException],
-    status_codes: Union[Iterable[int], int] = tuple(range(500, 600)),
+    status_codes: Union[Sequence[int], int] = tuple(range(500, 600)),
 ) -> bool:
     if isinstance(status_codes, int):
-        status_codes = {status_codes}
+        status_codes = [status_codes]
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code in status_codes
     return False
@@ -120,11 +120,7 @@ class retry_if_server_error(retry_base):
 
     def __init__(
         self,
-        server_error_codes: Union[
-            Iterable[int],
-            int,
-            None,
-        ] = None,
+        server_error_codes: Union[Sequence[int], int, None] = None,
     ) -> None:
         if server_error_codes is None:
             server_error_codes = RETRY_SERVER_ERROR_CODES
@@ -170,7 +166,7 @@ class wait_context_aware(wait_base):
         wait_network_errors: wait_base = tenacity.wait_exponential(),
         wait_network_timeouts: wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: wait_base = wait_from_header(header="Retry-After"),
-        server_error_codes: Union[Iterable[int], int, None] = None,
+        server_error_codes: Union[Sequence[int], int, None] = None,
         network_errors: Union[Tuple[Type[BaseException], ...], None] = None,
         network_timeouts: Union[Tuple[Type[BaseException], ...], None] = None,
     ) -> None:
@@ -214,7 +210,7 @@ def retry_http_errors(
         initial=1, max=15
     ),
     wait_rate_limited: wait_base = wait_from_header("Retry-After"),
-    server_error_codes: Union[Iterable[int], int, None] = None,
+    server_error_codes: Union[Sequence[int], int, None] = None,
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None
     ] = None,
