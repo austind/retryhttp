@@ -157,6 +157,15 @@ class wait_from_header(wait_base):
         return self.fallback(retry_state)
 
 
+class wait_retry_after_header(wait_from_header):
+    def __init__(
+        self,
+        header: str = "Retry-After",
+        fallback: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
+    ) -> None:
+        super().__init__(header, fallback)
+
+
 class wait_context_aware(wait_base):
     """Applies different wait strategies based on the type of error."""
 
