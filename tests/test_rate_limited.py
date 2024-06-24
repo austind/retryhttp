@@ -1,7 +1,9 @@
-from tenacity import retry, stop_after_attempt
+from tenacity import retry, stop_after_attempt, RetryError
 import httpx
-from tenacity_httpx import retry_if_rate_limited, wait_from_header
+from tenacity_httpx import retry_if_rate_limited, wait_retry_after_header
 import respx
+import pytest
+
 
 MOCK_URL = "https://example.com/"
 
@@ -15,7 +17,7 @@ def rate_limited_response(retry_after: int = 1):
 
 @retry(
     retry=retry_if_rate_limited(),
-    wait=wait_from_header(header="Retry-After"),
+    wait=wait_retry_after_header(),
     stop=stop_after_attempt(3),
 )
 def retry_rate_limited():
@@ -25,11 +27,26 @@ def retry_rate_limited():
 
 
 @respx.mock
+def test_rate_limited_failure():
+    route = respx.get(MOCK_URL).mock(
+        side_effect=[
+            rate_limited_response(),
+            rate_limited_response(),
+            rate_limited_response(),
+        ]
+    )
+    with pytest.raises(RetryError):
+        retry_rate_limited()
+    assert route.call_count == 3
+    assert route.calls[2].response.status_code == 429
+
+
+@respx.mock
 def test_rate_limited_success():
     route = respx.get(MOCK_URL).mock(
         side_effect=[
-            rate_limited_response(retry_after=1),
-            rate_limited_response(retry_after=1),
+            rate_limited_response(),
+            rate_limited_response(),
             httpx.Response(200),
         ]
     )
