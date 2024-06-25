@@ -211,8 +211,12 @@ class wait_http_errors(tenacity.wait.wait_base):
         wait_timeouts: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: tenacity.wait.wait_base = wait_retry_after_header(),
         server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
-        network_errors: Union[Tuple[Type[BaseException], ...], None] = None,
-        timeouts: Union[Tuple[Type[BaseException], ...], None] = None,
+        network_errors: Union[
+            Type[BaseException], Tuple[Type[BaseException], ...], None
+        ] = None,
+        timeouts: Union[
+            Type[BaseException], Tuple[Type[BaseException], ...], None
+        ] = None,
     ) -> None:
         if network_errors is None:
             network_errors = _get_default_network_errors()
