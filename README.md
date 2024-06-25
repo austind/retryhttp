@@ -32,7 +32,7 @@ def get_example():
 
 ## Default Behavior
 
-By default, `retryhttp.retry_http_errors()`:
+By default, `retryhttp.retry_http_errors()` retries the following conditions:
 
 * If the response status code is:
   * 429 Too Many Requests
@@ -45,8 +45,10 @@ By default, `retryhttp.retry_http_errors()`:
     * `httpx.ConnectError`
     * `httpx.ReadError`
     * `httpx.WriteError`
+    * `requests.ConnectionError`
   * Network timeouts
-    * `httpx.TimeoutError` (all timeouts)
+    * `httpx.TimeoutError`
+    * `requests.Timeout`
 
 Based on which error is raised, a different wait strategy is used:
 
