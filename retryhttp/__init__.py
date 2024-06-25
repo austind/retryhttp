@@ -41,7 +41,7 @@ RETRY_SERVER_ERROR_CODES = (
 
 
 def _get_default_network_errors() -> (
-    Tuple[Union[Type[httpx.NetworkError], Type[requests.HTTPError]], ...]
+    Tuple[Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...]
 ):
     exceptions = []
     if _HTTPX_INSTALLED:
@@ -68,9 +68,20 @@ def _get_default_timeouts() -> (
     return tuple(exceptions)
 
 
+def _get_http_status_exceptions() -> (
+    Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
+):
+    exceptions = []
+    if _HTTPX_INSTALLED:
+        exceptions.append(httpx.HTTPStatusError)
+    if _REQUESTS_INSTALLED:
+        exceptions.append(requests.HTTPError)
+    return tuple(exceptions)
+
+
 def _is_rate_limited(exc: Union[BaseException, None]) -> bool:
-    if isinstance(exc, httpx.HTTPStatusError):
-        return exc.response.status_code == httpx.codes.TOO_MANY_REQUESTS
+    if isinstance(exc, _get_http_status_exceptions()):
+        return exc.response.status_code == 429
     return False
 
 
@@ -80,7 +91,7 @@ def _is_server_error(
 ) -> bool:
     if isinstance(status_codes, int):
         status_codes = [status_codes]
-    if isinstance(exc, httpx.HTTPStatusError):
+    if isinstance(exc, _get_http_status_exceptions()):
         return exc.response.status_code in status_codes
     return False
 
@@ -154,7 +165,9 @@ class wait_from_header(tenacity.wait.wait_base):
     def __init__(
         self,
         header: str,
-        fallback: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
+        fallback: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(
+            initial=1, max=15
+        ),
     ) -> None:
         self.header = header
         self.fallback = fallback
@@ -162,10 +175,15 @@ class wait_from_header(tenacity.wait.wait_base):
     def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         if retry_state.outcome:
             exc = retry_state.outcome.exception()
-            if isinstance(exc, httpx.HTTPStatusError):
-                return float(
-                    exc.response.headers.get(self.header, self.fallback(retry_state))
-                )
+            if isinstance(exc, _get_http_status_exceptions()):
+                try:
+                    return float(
+                        exc.response.headers.get(
+                            self.header, self.fallback(retry_state)
+                        )
+                    )
+                except ValueError:
+                    pass
         return self.fallback(retry_state)
 
 
@@ -173,26 +191,26 @@ class wait_retry_after_header(wait_from_header):
     def __init__(
         self,
         header: str = "Retry-After",
-        fallback: wait_base = tenacity.wait_exponential_jitter(initial=1, max=15),
+        fallback: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(
+            initial=1, max=15
+        ),
     ) -> None:
         super().__init__(header, fallback)
 
 
-class wait_http_errors(wait_base):
+class wait_http_errors(tenacity.wait.wait_base):
     """Applies different wait strategies based on the type of error."""
 
     def __init__(
         self,
-        wait_server_errors: wait_base = tenacity.wait_exponential_jitter(),
-        wait_network_errors: wait_base = tenacity.wait_exponential(),
-        wait_timeouts: wait_base = tenacity.wait_exponential_jitter(),
-        wait_rate_limited: wait_base = wait_retry_after_header(),
-        server_error_codes: Union[Sequence[int], int, None] = None,
+        wait_server_errors: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
+        wait_network_errors: tenacity.wait.wait_base = tenacity.wait_exponential(),
+        wait_timeouts: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
+        wait_rate_limited: tenacity.wait.wait_base = wait_retry_after_header(),
+        server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
         network_errors: Union[Tuple[Type[BaseException], ...], None] = None,
         timeouts: Union[Tuple[Type[BaseException], ...], None] = None,
     ) -> None:
-        if server_error_codes is None:
-            server_error_codes = RETRY_SERVER_ERROR_CODES
         if network_errors is None:
             network_errors = _get_default_network_errors()
         if timeouts is None:
@@ -235,7 +253,7 @@ def retry_http_errors(
         initial=1, max=15
     ),
     wait_rate_limited: tenacity.wait.wait_base = wait_retry_after_header(),
-    server_error_codes: Union[Sequence[int], int, None] = None,
+    server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None
     ] = None,
@@ -250,8 +268,6 @@ def retry_http_errors(
     all configurable.
 
     """
-    if server_error_codes is None:
-        server_error_codes = RETRY_SERVER_ERROR_CODES
     if network_errors is None:
         network_errors = _get_default_network_errors()
     if timeouts is None:
