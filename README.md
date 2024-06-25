@@ -10,13 +10,31 @@ Under the hood, `retryhttp` extends [`tenacity`](https://github.com/jd/tenacity)
 
 Supports both [`requests`](https://github.com/psf/requests) and [`httpx`](https://github.com/encode/httpx).
 
-## Quickstart
+## Install
 
-Install from git:
+Install most recent stable release from PyPI. This installs support for both `httpx` and `requests`:
+
+```bash
+pip install retryhttp
+```
+
+You can also install support for only one or the other:
+
+```bash
+pip install retryhttp[httpx]
+# OR:
+pip install retryhttp[requests]
+```
+
+Install latest development snapshot from git:
 
 ```bash
 pip install git+https://github.com/austind/retryhttp.git@main
 ```
+
+## Quickstart
+
+
 
 ```python
 import httpx
