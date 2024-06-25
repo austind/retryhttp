@@ -332,9 +332,42 @@ def retry_http_errors(
 ) -> Any:
     """Retry potentially-transient HTTP errors with sensible default behavior.
 
-    Wraps retry() with retry, wait, and stop strategies optimized for
-    retrying potentially-transient HTTP errors with sensible defaults, which are
-    all configurable.
+    Wraps tenacity.retry() decorator with retry, wait, and stop strategies optimized for
+    retrying potentially-transient HTTP errors with sensible defaults.
+
+    The retry, wait, and stop args passed to tenacity.retry() are automatically constructed
+    based on the args below. You can override any of them by passing them as keyword arguments.
+    Any other positional or keyword args are passed directly to tenacity.retry().
+
+    Args:
+        max_attempt_number: Total times to attempt a request.
+        retry_server_errors: Whether to retry 5xx server errors.
+        retry_network_errors: Whether to retry network errors.
+        retry_timeouts: Whether to retry timeouts.
+        retry_rate_limited: Whether to retry 429 Too Many Requests errors.
+        wait_server_errors: Wait strategy to use for server errors.
+        wait_network_errors: Wait strategy to use for network errors.
+        wait_timeouts: Wait strategy to use for timeouts.
+        wait_rate_limited: Wait strategy to use for 429 Too Many Requests errors.
+        server_error_codes: One or more 5xx error codes that will trigger wait_server_errors
+            if retry_server_errors is True. Defaults to 500, 502, 503, and 504.
+        network_errors: One or more exceptions that will trigger wait_network_errors if
+            retry_network_errors is True. Defaults to:
+                - httpx.ConnectError
+                - httpx.ReadError
+                - httpx.WriteError
+                - requests.ConnectError
+        timeouts: One or more exceptions that will trigger wait_timeouts if
+            retry_timeouts is True. Defaults to:
+                - httpx.TimeoutException
+                - requests.Timeout
+
+    Returns:
+        Decorated function.
+
+    Raises:
+        - RuntimeError if retry_server_errors, retry_network_errors, retry_timeouts,
+            and retry_rate_limited are all False.
 
     """
     if network_errors is None:
