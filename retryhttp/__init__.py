@@ -49,8 +49,23 @@ def retry_http_errors(
 ) -> Any:
     """Retry potentially-transient HTTP errors with sensible default behavior.
 
-    Wraps tenacity.retry() decorator with retry, wait, and stop strategies optimized for
-    retrying potentially-transient HTTP errors with sensible defaults.
+    By default, retries the following errors, for a total of 3 attempts, with
+    exponential backoff (except for 429 Too Many Requests, which defaults to the
+    Retry-After header, if present):
+        - HTTP status errors:
+            - 429 Too Many Requests (rate limited)
+            - 500 Internal Server Error
+            - 502 Bad Gateway
+            - 503 Service Unavailable
+            - 504 Gateway Timeout
+        - Network errors:
+            - httpx.ConnectError
+            - httpx.ReadError
+            - httpx.WriteError
+            - requests.ConnectError
+        - Timeouts:
+            - httpx.TimeoutException
+            - requests.Timeout
 
     The retry, wait, and stop args for tenacity.retry() are automatically constructed
     based on the args below. You can override any of them by passing them as keyword arguments.
