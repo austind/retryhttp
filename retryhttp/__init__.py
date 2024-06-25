@@ -335,7 +335,7 @@ def retry_http_errors(
     Wraps tenacity.retry() decorator with retry, wait, and stop strategies optimized for
     retrying potentially-transient HTTP errors with sensible defaults.
 
-    The retry, wait, and stop args passed to tenacity.retry() are automatically constructed
+    The retry, wait, and stop args for tenacity.retry() are automatically constructed
     based on the args below. You can override any of them by passing them as keyword arguments.
     Any other positional or keyword args are passed directly to tenacity.retry().
 
