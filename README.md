@@ -6,7 +6,7 @@ Retry potentially-transient HTTP errors.
 
 ## Overview
 
-Under the hood, `retryhttp` extends [`tenacity`](https://github.com/jd/tenacity)` with custom retry and wait strategies, as well as a decorator that wraps `tenacity.retry()` with sensible defaults.
+Under the hood, `retryhttp` extends [`tenacity`](https://github.com/jd/tenacity) with custom retry and wait strategies, as well as a decorator that wraps `tenacity.retry()` with sensible defaults.
 
 Supports both [`requests`](https://github.com/psf/requests) and [`httpx`](https://github.com/encode/httpx).
 
