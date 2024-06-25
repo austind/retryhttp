@@ -9,7 +9,7 @@ Retry potentially-transient HTTP errors.
 Install from git:
 
 ```bash
-pip install git+https://github.com/austind/tenacity-httpx.git@main
+pip install git+https://github.com/austind/retryhttp.git@main
 ```
 
 This example attempts the request up to 3 times if:
