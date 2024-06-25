@@ -291,6 +291,8 @@ def retry_http_errors(
         retry_strategies.append(retry_if_timeout(timeouts=timeouts))
     if retry_rate_limited:
         retry_strategies.append(retry_if_rate_limited())
+    if not retry_strategies:
+        raise RuntimeError("No retry strategies enabled.")
 
     retry = dkw.get("retry") or tenacity.retry_any(*retry_strategies)
 
