@@ -202,7 +202,7 @@ class wait_retry_after_header(wait_from_header):
 
 
 class wait_http_errors(tenacity.wait.wait_base):
-    """Applies different wait strategies based on the type of error."""
+    """Context-aware wait strategy based on the type of HTTP error."""
 
     def __init__(
         self,
