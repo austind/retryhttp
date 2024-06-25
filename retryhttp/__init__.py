@@ -71,6 +71,7 @@ def _get_default_timeouts() -> (
 def _get_http_status_exceptions() -> (
     Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
 ):
+    """Get default HTTP status exceptions."""
     exceptions = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
@@ -80,6 +81,7 @@ def _get_http_status_exceptions() -> (
 
 
 def _is_rate_limited(exc: Union[BaseException, None]) -> bool:
+    """Whether a given exception indicates a 429 Too Many Requests error."""
     if isinstance(exc, _get_http_status_exceptions()):
         return exc.response.status_code == 429
     return False
@@ -89,6 +91,7 @@ def _is_server_error(
     exc: Optional[BaseException],
     status_codes: Union[Sequence[int], int] = tuple(range(500, 600)),
 ) -> bool:
+    """Whether a given exception indicates a 5xx server error."""
     if isinstance(status_codes, int):
         status_codes = [status_codes]
     if isinstance(exc, _get_http_status_exceptions()):
