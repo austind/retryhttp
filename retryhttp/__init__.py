@@ -68,7 +68,7 @@ def _get_default_timeouts() -> (
     return tuple(exceptions)
 
 
-def _get_http_status_exceptions() -> (
+def _get_default_http_status_exceptions() -> (
     Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
 ):
     """Get default HTTP status exceptions."""
@@ -82,7 +82,7 @@ def _get_http_status_exceptions() -> (
 
 def _is_rate_limited(exc: Union[BaseException, None]) -> bool:
     """Whether a given exception indicates a 429 Too Many Requests error."""
-    if isinstance(exc, _get_http_status_exceptions()):
+    if isinstance(exc, _get_default_http_status_exceptions()):
         return exc.response.status_code == 429
     return False
 
@@ -94,7 +94,7 @@ def _is_server_error(
     """Whether a given exception indicates a 5xx server error."""
     if isinstance(status_codes, int):
         status_codes = [status_codes]
-    if isinstance(exc, _get_http_status_exceptions()):
+    if isinstance(exc, _get_default_http_status_exceptions()):
         return exc.response.status_code in status_codes
     return False
 
@@ -178,7 +178,7 @@ class wait_from_header(tenacity.wait.wait_base):
     def __call__(self, retry_state: tenacity.RetryCallState) -> float:
         if retry_state.outcome:
             exc = retry_state.outcome.exception()
-            if isinstance(exc, _get_http_status_exceptions()):
+            if isinstance(exc, _get_default_http_status_exceptions()):
                 try:
                     return float(
                         exc.response.headers.get(
