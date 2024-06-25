@@ -37,11 +37,19 @@ classifiers = [
 ]
 dependencies = [
     "httpx",
-    "pydantic",
+    "requests",
     "tenacity"
 ]
 
 [project.optional-dependencies]
+httpx = [
+  "httpx",
+  "tenacity",
+]
+requests = [
+  "requests",
+  "tenacity",
+]
 dev = [
   "pytest",
   "pytest-xdist",
