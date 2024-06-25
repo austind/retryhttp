@@ -1,6 +1,6 @@
 import httpx
 import respx
-from tenacity_httpx import retry_http_errors
+from retryhttp import retry_http_errors
 import pytest
 from tenacity import RetryError
 

@@ -9,9 +9,9 @@ requires = [
 build-backend="setuptools.build_meta"
 
 [project]
-name = "tenacity_httpx"
+name = "retryhttp"
 version = "0.1.0"
-description = "Retry potentially-transient errors with tenacity and httpx"
+description = "Retry potentially-transient HTTP errors."
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.8"

@@ -1,6 +1,6 @@
-# tenacity_httpx
+# retryhttp
 
-Retry potentially-transient errors with tenacity and httpx.
+Retry potentially-transient HTTP errors.
 
 *Note*: This project is in beta status. The API may change significantly.
 
@@ -37,7 +37,7 @@ Based on which error is raised, a different wait strategy is used:
 
 ```python
 import httpx
-from tenacity_httpx import retry_http_errors
+from retryhttp import retry_http_errors
 
 @retry_http_errors()
 httpx.get("https://example.com/")

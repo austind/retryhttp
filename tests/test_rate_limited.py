@@ -1,6 +1,6 @@
 from tenacity import retry, stop_after_attempt, RetryError
 import httpx
-from tenacity_httpx import retry_if_rate_limited, wait_retry_after_header
+from retryhttp import retry_if_rate_limited, wait_retry_after_header
 import respx
 import pytest
 
