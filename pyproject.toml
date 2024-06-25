@@ -59,8 +59,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/austind/tenacity-httpx"
-Repository = "https://github.com/austind/tenacity-httpx.git"
+Homepage = "https://github.com/austind/retryhttp"
+Repository = "https://github.com/austind/retryhttp.git"
+Issues = "https://github.com/austind/retryhttp/issues"
 
 [tool.ruff]
 line-length = 88
