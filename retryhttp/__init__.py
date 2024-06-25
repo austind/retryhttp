@@ -71,7 +71,7 @@ def _get_default_timeouts() -> (
 def _get_default_http_status_exceptions() -> (
     Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
 ):
-    """Get default HTTP status exceptions."""
+    """Get default HTTP status 4xx or 5xx exceptions."""
     exceptions = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
