@@ -43,6 +43,18 @@ RETRY_SERVER_ERROR_CODES = (
 def _get_default_network_errors() -> (
     Tuple[Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...]
 ):
+    """Get all network errors to use by default.
+
+    Args:
+        N/A
+
+    Returns:
+        Tuple of network error exceptions.
+
+    Raises:
+        N/A
+
+    """
     exceptions = []
     if _HTTPX_INSTALLED:
         exceptions.extend(
@@ -60,6 +72,18 @@ def _get_default_network_errors() -> (
 def _get_default_timeouts() -> (
     Tuple[Type[Union[httpx.TimeoutException, requests.Timeout]], ...]
 ):
+    """Get all timeout exceptions to use by default.
+
+    Args:
+        N/A
+
+    Returns:
+        Tuple of timeout exceptions.
+
+    Raises:
+        N/A
+
+    """
     exceptions = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.TimeoutException)
@@ -71,7 +95,18 @@ def _get_default_timeouts() -> (
 def _get_default_http_status_exceptions() -> (
     Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
 ):
-    """Get default HTTP status 4xx or 5xx exceptions."""
+    """Get default HTTP status 4xx or 5xx exceptions.
+
+    Args:
+        N/A
+
+    Returns:
+        Tuple of HTTP status exceptions.
+
+    Raises:
+        N/A
+
+    """
     exceptions = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
@@ -81,7 +116,18 @@ def _get_default_http_status_exceptions() -> (
 
 
 def _is_rate_limited(exc: Union[BaseException, None]) -> bool:
-    """Whether a given exception indicates a 429 Too Many Requests error."""
+    """Whether a given exception indicates a 429 Too Many Requests error.
+
+    Args:
+        exc: Exception to consider.
+
+    Returns:
+        Boolean of whether exc indicates a 429 Too Many Requests error.
+
+    Raises:
+        N/A
+
+    """
     if isinstance(exc, _get_default_http_status_exceptions()):
         return exc.response.status_code == 429
     return False
@@ -91,7 +137,20 @@ def _is_server_error(
     exc: Optional[BaseException],
     status_codes: Union[Sequence[int], int] = tuple(range(500, 600)),
 ) -> bool:
-    """Whether a given exception indicates a 5xx server error."""
+    """Whether a given exception indicates a 5xx server error.
+
+    Args:
+        exc: Exception to consider.
+        status_codes: One or more 5xx status codes to consider. Defaults
+            to all (500-599).
+
+    Returns:
+        Boolean of whether exc indicates an error included in status_codes.
+
+    Raises:
+        N/A
+
+    """
     if isinstance(status_codes, int):
         status_codes = [status_codes]
     if isinstance(exc, _get_default_http_status_exceptions()):
@@ -141,7 +200,10 @@ class retry_if_timeout(tenacity.retry_if_exception_type):
 class retry_if_server_error(tenacity.retry_base):
     """Retry certain server errors (5xx).
 
-    Accepts a list or tuple of status codes to retry (5xx only).
+    Args:
+        server_error_codes: One or more 5xx errors to retry. Defaults to
+            500, 502, 503, and 504.
+
     """
 
     def __init__(
