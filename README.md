@@ -2,7 +2,13 @@
 
 Retry potentially-transient HTTP errors.
 
-*Note*: This project is in beta status. The API may change significantly.
+**Note**: This project is in beta status. The API may change significantly.
+
+## Overview
+
+Under the hood, `retryhttp` extends `[tenacity](https://github.com/jd/tenacity)` with custom retry and wait strategies, as well as a decorator that wraps `tenacity.retry()` with sensible defaults.
+
+Support for `[requests](https://github.com/psf/requests)` and `[httpx](https://github.com/encode/httpx)` is built-in, but is fully customizable to work with any underlying tools.
 
 ## Quickstart
 
@@ -12,15 +18,29 @@ Install from git:
 pip install git+https://github.com/austind/retryhttp.git@main
 ```
 
-This example attempts the request up to 3 times if:
+```python
+import httpx
+from retryhttp import retry_http_errors
 
-* The response status code is:
+# See Default Behavior section below for what happens here
+@retry_http_errors()
+def get_example():
+    response = httpx.get("https://example.com/")
+    response.raise_for_status()
+
+```
+
+## Default Behavior
+
+By default, `retryhttp.retry_http_errors()`:
+
+* If the response status code is:
   * 429 Too Many Requests
   * 500 Internal Server Error
   * 502 Bad Gateway
   * 503 Service Unavailable
   * 504 Gateway Timeout
-* One of the following exceptions is raised:
+* If one of the following other exceptions is raised:
   * Network errors
     * `httpx.ConnectError`
     * `httpx.ReadError`
@@ -35,10 +55,3 @@ Based on which error is raised, a different wait strategy is used:
 * Network errors: `tenacity.wait_exponential()`
 * Network timeouts: `tenacity.wait_exponential_jitter()`
 
-```python
-import httpx
-from retryhttp import retry_http_errors
-
-@retry_http_errors()
-httpx.get("https://example.com/")
-```
