@@ -1,0 +1,41 @@
+site_name: retryhttp
+site_description: Retry commonly transient HTTP errors.
+site_url: https://github.com/austind/retryhttp
+
+theme:
+  name: "material"
+  icon:
+    logo: "material/school"
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      primary: "deep purple"
+      accent: "deep purple"
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      primary: "deep purple"
+      accent: "deep purple"
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+extra_css:
+  - stylesheets/slate.css
+
+repo_name: austind/retryhttp
+repo_url: https://github.com/austind/retryhttp
+edit_uri: ""
+
+nav:
+  - Introduction: "index.md"
+  - User Guide: "guide.md"
+  - API Reference: "api.md"
+
+markdown_extensions:
+  - admonition
+  - codehilite:
+      css_class: highlight
+  - mkautodoc
