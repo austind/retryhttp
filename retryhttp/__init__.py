@@ -9,7 +9,7 @@ from typing import (
 )
 
 import tenacity
-from retryhttp.wait import wait_retry_after_header, wait_http_errors, wait_from_header
+from retryhttp.wait import wait_rate_limited, wait_http_errors, wait_from_header
 from retryhttp.constants import RETRY_SERVER_ERROR_CODES
 from retryhttp.retry import (
     retry_if_network_error,
@@ -18,7 +18,6 @@ from retryhttp.retry import (
     retry_if_timeout,
 )
 from retryhttp.helpers import get_default_network_errors, get_default_timeouts
-
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -38,7 +37,7 @@ def retry_http_errors(
     wait_timeouts: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(
         initial=1, max=15
     ),
-    wait_rate_limited: tenacity.wait.wait_base = wait_retry_after_header(),
+    wait_rate_limited: tenacity.wait.wait_base = wait_rate_limited(),
     server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None
@@ -148,5 +147,5 @@ __all__ = [
     "retry_if_server_error",
     "wait_http_errors",
     "wait_from_header",
-    "wait_retry_after_header",
+    "wait_rate_limited",
 ]

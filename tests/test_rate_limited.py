@@ -1,6 +1,6 @@
 from tenacity import retry, stop_after_attempt, RetryError
 import httpx
-from retryhttp import retry_if_rate_limited, wait_retry_after_header
+from retryhttp import retry_if_rate_limited, wait_rate_limited
 import respx
 import pytest
 
@@ -17,7 +17,7 @@ def rate_limited_response(retry_after: int = 1):
 
 @retry(
     retry=retry_if_rate_limited(),
-    wait=wait_retry_after_header(),
+    wait=wait_rate_limited(),
     stop=stop_after_attempt(3),
 )
 def retry_rate_limited():

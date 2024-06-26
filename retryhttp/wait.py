@@ -41,7 +41,7 @@ class wait_from_header(tenacity.wait.wait_base):
         return self.fallback(retry_state)
 
 
-class wait_retry_after_header(wait_from_header):
+class wait_rate_limited(wait_from_header):
     def __init__(
         self,
         header: str = "Retry-After",
@@ -60,7 +60,7 @@ class wait_http_errors(tenacity.wait.wait_base):
         wait_server_errors: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
         wait_network_errors: tenacity.wait.wait_base = tenacity.wait_exponential(),
         wait_timeouts: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
-        wait_rate_limited: tenacity.wait.wait_base = wait_retry_after_header(),
+        wait_rate_limited: tenacity.wait.wait_base = wait_rate_limited(),
         server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
         network_errors: Union[
             Type[BaseException], Tuple[Type[BaseException], ...], None
