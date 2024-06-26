@@ -58,6 +58,7 @@ dev = [
   "nox",
   "mkdocs",
   "mkdocs-material",
+  "mkautodoc",
 ]
 
 [project.urls]
