@@ -81,7 +81,7 @@ Based on which error is raised, a different wait strategy is used:
 ```python
 import httpx
 from tenacity import wait_exponential, wait_rate_limited
-from retryhttp import retry_http_errors, wait_
+from retryhttp import retry_http_errors
 
 # Retry only 503 Service Unavailable and network errors up to 5 times
 # with default wait strategies.
