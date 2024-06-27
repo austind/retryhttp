@@ -56,6 +56,8 @@ dev = [
   "respx",
   "ruff",
   "nox",
+]
+docs = [
   "mkdocs",
   "mkdocs-material",
   "mkdocstrings[python]",
