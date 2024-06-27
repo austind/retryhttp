@@ -58,7 +58,7 @@ dev = [
   "nox",
   "mkdocs",
   "mkdocs-material",
-  "mkautodoc",
+  "mkdocstrings[python]",
 ]
 
 [project.urls]

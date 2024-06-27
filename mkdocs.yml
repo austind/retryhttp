@@ -1,6 +1,6 @@
 site_name: retryhttp
 site_description: Retry commonly transient HTTP errors.
-site_url: https://github.com/austind/retryhttp
+site_url: https://retryhttp.readthedocs.io
 
 theme:
   name: "material"
@@ -33,5 +33,29 @@ nav:
 
 markdown_extensions:
   - admonition
-  - codehilite
-  - mkautodoc
+  - codehilite:
+      css_class: highlight
+
+extra_css:
+  - css/mkdocstrings.css
+
+plugins:
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          import:
+            - https://tenacity.readthedocs.io/en/latest/objects.inv
+          options:
+            show_source: false
+            docstring_style: google
+            show_bases: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            separate_signature: true
+            show_signature_annotations: true
+            docstring_section_style: spacy
+            heading_level: 3
+            signature_crossrefs: true
+            group_by_category: true

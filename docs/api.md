@@ -1,8 +1,27 @@
 # API Reference
 
-## Main Decorator
+## Retry Decorator
 
-The `retry_http_errors` decorator wraps `tenacity.retry()` with all the defaults combined into one simple interface. In most cases, it's the easiest and most straightforward way to use `retryhttp`.
+Wraps [tenacity.retry][] with sensible defaults for most use cases.
 
 ::: retryhttp.retry_http_errors
-    :docstring:
+
+## Retry Strategies
+
+If you'd rather use [tenacity.retry][] directly (without using [retryhttp.retry_http_errors][]), you can use these retry strategies.
+
+::: retryhttp.retry_if_network_error
+
+::: retryhttp.retry_if_rate_limited
+
+::: retryhttp.retry_if_server_error
+
+::: retryhttp.retry_if_timeout
+
+## Wait Strategies
+
+::: retryhttp.wait_from_header
+
+::: retryhttp.wait_http_errors
+
+::: retryhttp.wait_rate_limited
