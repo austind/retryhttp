@@ -28,7 +28,7 @@ edit_uri: ""
 
 nav:
   - Introduction: "index.md"
-  # - User Guide: "guide.md"
+  - User Guide: "guide.md"
   - API Reference: "api.md"
 
 markdown_extensions:
