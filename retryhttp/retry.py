@@ -1,4 +1,5 @@
 import tenacity
+from tenacity.retry import retry_if_exception_type, retry_base
 from retryhttp.helpers import (
     get_default_network_errors,
     get_default_timeouts,
@@ -10,17 +11,19 @@ from typing import Union, Type, Tuple, Sequence
 from retryhttp.constants import RETRY_SERVER_ERROR_CODES
 
 
-class retry_if_rate_limited(tenacity.retry_base):
-    """Retry if rate limited (429 Too Many Requests)."""
+class retry_if_network_error(retry_if_exception_type):
+    """Retry network errors.
 
-    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
-        if retry_state.outcome:
-            return is_rate_limited(retry_state.outcome.exception())
-        return False
+    Args:
+        errors: One or more exceptions to consider a network error. If omitted,
+            defaults to:
 
+            - httpx.ConnectError
+            - httpx.ReadError
+            - httpx.WriteError
+            - requests.ConnectionError
 
-class retry_if_network_error(tenacity.retry_if_exception_type):
-    """Retry network errors."""
+    """
 
     def __init__(
         self,
@@ -34,22 +37,16 @@ class retry_if_network_error(tenacity.retry_if_exception_type):
         super().__init__(exception_types=self.errors)
 
 
-class retry_if_timeout(tenacity.retry_if_exception_type):
-    """Retry timeouts."""
+class retry_if_rate_limited(retry_base):
+    """Retry if server responds with 429 Too Many Requests."""
 
-    def __init__(
-        self,
-        timeouts: Union[
-            Type[BaseException], Tuple[Type[BaseException], ...], None
-        ] = None,
-    ) -> None:
-        if timeouts is None:
-            timeouts = get_default_timeouts()
-        self.timeouts = timeouts
-        super().__init__(exception_types=self.timeouts)
+    def __call__(self, retry_state: tenacity.RetryCallState) -> bool:
+        if retry_state.outcome:
+            return is_rate_limited(retry_state.outcome.exception())
+        return False
 
 
-class retry_if_server_error(tenacity.retry_base):
+class retry_if_server_error(retry_base):
     """Retry certain server errors (5xx).
 
     Args:
@@ -71,3 +68,28 @@ class retry_if_server_error(tenacity.retry_base):
             exc = retry_state.outcome.exception()
             return is_server_error(exc, self.server_error_codes)
         return False
+
+
+class retry_if_timeout(retry_if_exception_type):
+    """Retry timeouts.
+
+    Args:
+        timeouts: One or more exceptions to consider a timeout. If omitted,
+            defaults to:
+
+            - httpx.ConnectTimeout
+            - httpx.ReadTimeout
+            - httpx.WriteTimeout
+            - requests.Timeout
+    """
+
+    def __init__(
+        self,
+        timeouts: Union[
+            Type[BaseException], Tuple[Type[BaseException], ...], None
+        ] = None,
+    ) -> None:
+        if timeouts is None:
+            timeouts = get_default_timeouts()
+        self.timeouts = timeouts
+        super().__init__(exception_types=self.timeouts)

@@ -51,24 +51,25 @@ def retry_http_errors(
     By default, retries the following errors, for a total of 3 attempts, with
     exponential backoff (except for 429 Too Many Requests, which defaults to the
     Retry-After header, if present):
-        - HTTP status errors:
-            - 429 Too Many Requests (rate limited)
-            - 500 Internal Server Error
-            - 502 Bad Gateway
-            - 503 Service Unavailable
-            - 504 Gateway Timeout
-        - Network errors:
-            - httpx.ConnectError
-            - httpx.ReadError
-            - httpx.WriteError
-            - requests.ConnectError
-        - Timeouts:
-            - httpx.TimeoutException
-            - requests.Timeout
 
-    The retry, wait, and stop args for tenacity.retry() are automatically constructed
+    - HTTP status errors:
+        - 429 Too Many Requests (rate limited)
+        - 500 Internal Server Error
+        - 502 Bad Gateway
+        - 503 Service Unavailable
+        - 504 Gateway Timeout
+    - Network errors:
+        - httpx.ConnectError
+        - httpx.ReadError
+        - httpx.WriteError
+        - requests.ConnectError
+    - Timeouts:
+        - httpx.TimeoutException
+        - requests.Timeout
+
+    The retry, wait, and stop args for `tenacity.retry` are automatically constructed
     based on the args below. You can override any of them by passing them as keyword arguments.
-    Any other positional or keyword args are passed directly to tenacity.retry().
+    Any other positional or keyword args are passed directly to `tenacity.retry()`.
 
     Args:
         max_attempt_number: Total times to attempt a request.
@@ -84,21 +85,23 @@ def retry_http_errors(
             if retry_server_errors is True. Defaults to 500, 502, 503, and 504.
         network_errors: One or more exceptions that will trigger wait_network_errors if
             retry_network_errors is True. Defaults to:
-                - httpx.ConnectError
-                - httpx.ReadError
-                - httpx.WriteError
-                - requests.ConnectError
+
+            - httpx.ConnectError
+            - httpx.ReadError
+            - httpx.WriteError
+            - requests.ConnectError
         timeouts: One or more exceptions that will trigger wait_timeouts if
             retry_timeouts is True. Defaults to:
-                - httpx.TimeoutException
-                - requests.Timeout
+
+            - httpx.TimeoutException
+            - requests.Timeout
 
     Returns:
         Decorated function.
 
     Raises:
-        - RuntimeError if retry_server_errors, retry_network_errors, retry_timeouts,
-            and retry_rate_limited are all False.
+        RuntimeError: if `retry_server_errors`, `retry_network_errors`, `retry_timeouts`,
+            and `retry_rate_limited` are all `False`.
 
     """
     if network_errors is None:

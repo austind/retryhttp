@@ -13,7 +13,11 @@ from retryhttp.constants import RETRY_SERVER_ERROR_CODES
 class wait_from_header(tenacity.wait.wait_base):
     """Wait strategy that derives the value from an HTTP header, if present.
 
-    Fallback is used if header is not present.
+    Args:
+        header: Header to attempt to derive wait value from.
+        fallback: Wait strategy to use if `header` is not present, or unable
+            to parse to a `float` value.
+
     """
 
     def __init__(
@@ -42,6 +46,15 @@ class wait_from_header(tenacity.wait.wait_base):
 
 
 class wait_rate_limited(wait_from_header):
+    """Wait strategy to use with 429 Too Many Requests.
+
+    Args:
+        header: Header to attempt to derive wait value from.
+        fallback: Wait strategy to use if `header` is not present, or unable
+            to parse to a `float` value.
+
+    """
+
     def __init__(
         self,
         header: str = "Retry-After",
@@ -53,7 +66,35 @@ class wait_rate_limited(wait_from_header):
 
 
 class wait_http_errors(tenacity.wait.wait_base):
-    """Context-aware wait strategy based on the type of HTTP error."""
+    """Context-aware wait strategy based on the type of HTTP error.
+
+    Args:
+        wait_server_errors: Wait strategy to use with server errors.
+        wait_network_errors: Wait strategy to use with network errors.
+        wait_timeouts: Wait strategy to use with timeouts.
+        wait_rate_limited: Wait strategy to use with 429 Too Many Requests.
+        server_error_codes: One or more 5xx HTTP status codes to consider for
+            `wait_server_errors`. If omitted, defaults to:
+
+            - 500
+            - 502
+            - 503
+            - 504
+        network_errors: One or more exceptions to consider for `wait_network_errors`.
+            If omitted, defaults to:
+
+            - httpx.ConnectError
+            - httpx.ReadError
+            - httpx.WriteError
+            - requests.ConnectionError
+        timeouts: One or more exceptions to consider for `wait_timeouts`. If omitted,
+            defaults to:
+
+            - httpx.ConnectTimeout
+            - httpx.ReadTimeout
+            - httpx.WriteTimeout
+            - requests.Timeout
+    """
 
     def __init__(
         self,
