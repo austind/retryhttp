@@ -14,20 +14,20 @@ Supports exceptions raised by both [`requests`](https://github.com/psf/requests)
 
 ## Install
 
-Install most recent stable release from PyPI. This installs support for both `httpx` and `requests`:
+Install most recent stable release from PyPI:
 
 ```sh
-pip install retryhttp
+pip install retryhttp # Supports both HTTPX and requests
 ```
 
-You can also install support for only one or the other:
+You can also install support for only HTTPX or requests:
 
 ```sh
-pip install retryhttp[httpx] # Support only HTTPX
-pip install retryhttp[requests] # Support only requests
+pip install retryhttp[httpx] # Supports only HTTPX
+pip install retryhttp[requests] # Supports only requests
 ```
 
-Install latest development snapshot from git:
+Or, install the latest development snapshot from git:
 
 ```sh
 pip install git+https://github.com/austind/retryhttp.git@main
