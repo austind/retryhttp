@@ -7,7 +7,6 @@ from retryhttp.helpers import (
     is_server_error,
     is_rate_limited,
 )
-from retryhttp.constants import RETRY_SERVER_ERROR_CODES
 
 
 class wait_from_header(tenacity.wait.wait_base):
@@ -102,7 +101,12 @@ class wait_http_errors(tenacity.wait.wait_base):
         wait_network_errors: tenacity.wait.wait_base = tenacity.wait_exponential(),
         wait_timeouts: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(),
         wait_rate_limited: tenacity.wait.wait_base = wait_rate_limited(),
-        server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
+        server_error_codes: Union[Sequence[int], int] = (
+            500,
+            502,
+            503,
+            504,
+        ),
         network_errors: Union[
             Type[BaseException], Tuple[Type[BaseException], ...], None
         ] = None,

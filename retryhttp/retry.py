@@ -8,8 +8,6 @@ from retryhttp.helpers import (
 )
 from typing import Union, Type, Tuple, Sequence
 
-from retryhttp.constants import RETRY_SERVER_ERROR_CODES
-
 
 class retry_if_network_error(retry_if_exception_type):
     """Retry network errors.
@@ -57,10 +55,13 @@ class retry_if_server_error(retry_base):
 
     def __init__(
         self,
-        server_error_codes: Union[Sequence[int], int, None] = None,
+        server_error_codes: Union[Sequence[int], int] = (
+            500,
+            502,
+            503,
+            504,
+        ),
     ) -> None:
-        if server_error_codes is None:
-            server_error_codes = RETRY_SERVER_ERROR_CODES
         self.server_error_codes = server_error_codes
 
     def __call__(self, retry_state: tenacity.RetryCallState) -> bool:

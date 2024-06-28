@@ -10,7 +10,6 @@ from typing import (
 
 import tenacity
 from retryhttp.wait import wait_rate_limited, wait_http_errors, wait_from_header
-from retryhttp.constants import RETRY_SERVER_ERROR_CODES
 from retryhttp.retry import (
     retry_if_network_error,
     retry_if_rate_limited,
@@ -38,7 +37,12 @@ def retry_http_errors(
         initial=1, max=15
     ),
     wait_rate_limited: tenacity.wait.wait_base = wait_rate_limited(),
-    server_error_codes: Union[Sequence[int], int] = RETRY_SERVER_ERROR_CODES,
+    server_error_codes: Union[Sequence[int], int] = (
+        500,
+        502,
+        503,
+        504,
+    ),
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None
     ] = None,
