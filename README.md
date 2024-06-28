@@ -1,6 +1,6 @@
-# retryhttp
+# RetryHTTP
 
-Retry commonly transient HTTP errors in Python.
+Retry potentially transient HTTP errors in Python.
 
 See [documentation](https://retryhttp.readthedocs.io/en/latest/).
 
@@ -8,7 +8,7 @@ See [documentation](https://retryhttp.readthedocs.io/en/latest/).
 
 ## Overview
 
-Several errors with HTTP requests are often transient, and may benefit from retrying:
+Several HTTP errors are often transient, and might succeed if retried:
 
 * HTTP status codes
     * `429 Too Many Requests` (rate limited)

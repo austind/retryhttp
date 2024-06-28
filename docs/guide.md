@@ -1,6 +1,10 @@
 ## Overview
 
-`retryhttp` extends the core functionality of `tenacity` with custom retry and wait strategies aimed at making it easier to retry commonly transient HTTP errors.
+Under the hood, RetryHTTP is a convenience layer on top of the excellent retry library [`tenacity`](https://github.com/jd/tenacity).
+
+`tenacity` works by adding a decorator to functions that might fail. This decorator is configured with retry, wait, and stop strategies that configure what conditions to retry, how long to wait between retries, and when to stop retrying, respectively. Failures could be a raised exception, or a configurable return value. See [`tenacity` documentation](https://tenacity.readthedocs.io/en/latest/index.html) for details.
+
+`retryhttp` provides new retry and stop strategies specific to potentially transient error conditions raised by `httpx` and `requests`. To make things as convenient as possible, `retryhttp` also provides a [retryhttp.retry_http_errors][custom decorator] that wraps [tenacity.retry][] with customizable defaults.
 
 ## Examples
 
