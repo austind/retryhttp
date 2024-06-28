@@ -1,4 +1,4 @@
-site_name: retryhttp
+site_name: RetryHTTP
 site_description: Retry commonly transient HTTP errors.
 site_url: https://retryhttp.readthedocs.io
 
