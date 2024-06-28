@@ -41,6 +41,7 @@ dependencies = [
     "tenacity"
 ]
 
+
 [project.optional-dependencies]
 httpx = [
   "httpx",
@@ -67,6 +68,9 @@ docs = [
 Homepage = "https://github.com/austind/retryhttp"
 Repository = "https://github.com/austind/retryhttp.git"
 Issues = "https://github.com/austind/retryhttp/issues"
+
+[tool.setuptools]
+packages = ["retryhttp"]
 
 [tool.ruff]
 line-length = 88
