@@ -1,5 +1,5 @@
 site_name: RetryHTTP
-site_description: Retry commonly transient HTTP errors.
+site_description: Retry potentially transient HTTP errors in Python.
 site_url: https://retryhttp.readthedocs.io
 
 theme:
@@ -27,9 +27,10 @@ repo_url: https://github.com/austind/retryhttp
 edit_uri: ""
 
 nav:
-  - Introduction: "index.md"
-  - User Guide: "guide.md"
-  - API Reference: "api.md"
+  - Introduction: index.md
+  - User Guide: guide.md
+  - API Reference: api.md
+  - Changelog: changelog.md
 
 markdown_extensions:
   - admonition
