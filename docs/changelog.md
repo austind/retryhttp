@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0
+## v1.0.0
 
 * Rename `retryhttp.retry_http_errors` to [`retryhttp.retry.retry`][].
 

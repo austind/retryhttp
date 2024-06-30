@@ -10,7 +10,7 @@ from retryhttp.helpers import (
 
 
 class wait_from_header(tenacity.wait.wait_base):
-    """Wait strategy that derives the value from an HTTP header, if present.
+    """Wait strategy that derives the wait value from an HTTP header.
 
     Args:
         header: Header to attempt to derive wait value from.
@@ -22,9 +22,7 @@ class wait_from_header(tenacity.wait.wait_base):
     def __init__(
         self,
         header: str,
-        fallback: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(
-            initial=1, max=15
-        ),
+        fallback: tenacity.wait.wait_base,
     ) -> None:
         self.header = header
         self.fallback = fallback
@@ -45,23 +43,21 @@ class wait_from_header(tenacity.wait.wait_base):
 
 
 class wait_rate_limited(wait_from_header):
-    """Wait strategy to use with 429 Too Many Requests.
+    """Wait strategy to use when the server responds with `429 Too Many Requests`.
+
+    Attempts to derive wait value from the `Retry-After` header.
 
     Args:
-        header: Header to attempt to derive wait value from.
-        fallback: Wait strategy to use if `header` is not present, or unable
+        fallback: Wait strategy to use if `Retry-After` header is not present, or unable
             to parse to a `float` value.
 
     """
 
     def __init__(
         self,
-        header: str = "Retry-After",
-        fallback: tenacity.wait.wait_base = tenacity.wait_exponential_jitter(
-            initial=1, max=15
-        ),
+        fallback: tenacity.wait.wait_base = tenacity.wait_exponential(),
     ) -> None:
-        super().__init__(header, fallback)
+        super().__init__(header="Retry-After", fallback=fallback)
 
 
 class wait_http_errors(tenacity.wait.wait_base):
