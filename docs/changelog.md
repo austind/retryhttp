@@ -2,7 +2,7 @@
 
 ## v0.2.0
 
-* Rename `retryhttp.retry_http_errors` to [`retryhttp.retry`][].
+* Rename `retryhttp.retry_http_errors` to [`retryhttp.retry.retry`][].
 
 ## v0.1.0
 
