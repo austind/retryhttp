@@ -4,7 +4,7 @@
 
 Wraps [`tenacity.retry`][] with sensible defaults for most use cases.
 
-::: retryhttp.retry
+::: retryhttp.retry.retry
 
 ## Retry Strategies
 
