@@ -4,18 +4,18 @@ Under the hood, RetryHTTP is a convenience layer on top of the excellent retry l
 
 `tenacity` works by adding a decorator to functions that might fail. This decorator is configured with retry, wait, and stop strategies that configure what conditions to retry, how long to wait between retries, and when to stop retrying, respectively. Failures could be a raised exception, or a configurable return value. See [`tenacity` documentation](https://tenacity.readthedocs.io/en/latest/index.html) for details.
 
-`retryhttp` provides new retry and stop strategies for potentially transient error conditions raised by `httpx` and `requests`. To make things as convenient as possible, `retryhttp` also provides a [new decorator][retryhttp.retry_http_errors] that wraps [tenacity.retry][] with sensible defaults (which are all customizable).
+`retryhttp` provides new retry and stop strategies for potentially transient error conditions raised by `httpx` and `requests`. To make things as convenient as possible, `retryhttp` also provides a [new decorator][retryhttp.retry] that wraps [tenacity.retry][] with sensible defaults (which are all customizable).
 
 ## Examples
 
 ```python
 import httpx
 from tenacity import wait_exponential, wait_rate_limited
-from retryhttp import retry_http_errors
+from retryhttp import retry
 
 # Retry only 503 Service Unavailable and network errors up to 5 times
 # with default wait strategies.
-@retry_http_errors(
+@retry(
     max_attempt_number=5,
     retry_timeouts=False,
     retry_rate_limited=False,
@@ -26,7 +26,7 @@ def get_example():
     response.raise_for_status()
 
 # Retry only httpx.ConnectError and apply a custom wait strategy.
-@retry_http_errors(
+@retry(
     retry_timeouts=False,
     retry_rate_limited=False,
     retry_server_errors=False,
@@ -41,7 +41,7 @@ def get_example():
 # fallback wait strategy for rate limited (429 Too Many Requests). I.e.,
 # we'll honor the Retry-After header if it exists, otherwise we'll use
 # a custom wait_exponential
-@retry_http_errors(
+@retry(
     max_attempt_number=5
     wait_rate_limited=wait_rate_limited(
         fallback=wait_exponential(multiplier=0.5, min=0.5, max=20)
@@ -54,7 +54,7 @@ def get_example():
 
 ## Advanced Usage
 
-You don't have to use the [`retryhttp.retry_http_errors`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`][] and roll your own approach.
+You don't have to use the [`retryhttp.retry`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`][] and roll your own approach.
 
 !!! note
     If you want to apply different wait strategies to specific errors, you'll need to use [`retryhttp.wait_http_errors`][] as a wait strategy, or write your own context-aware wait strategy.

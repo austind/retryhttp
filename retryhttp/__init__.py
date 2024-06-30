@@ -21,7 +21,7 @@ from retryhttp.helpers import get_default_network_errors, get_default_timeouts
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def retry_http_errors(
+def retry(
     max_attempt_number: int = 3,
     retry_server_errors: bool = True,
     retry_network_errors: bool = True,
@@ -147,7 +147,7 @@ def retry_http_errors(
 
 
 __all__ = [
-    "retry_http_errors",
+    "retry",
     "retry_if_network_error",
     "retry_if_timeout",
     "retry_if_rate_limited",

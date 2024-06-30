@@ -47,13 +47,15 @@ pip install git+https://github.com/austind/retryhttp.git@main
 
 ```python
 import httpx
-from retryhttp import retry_http_errors
+import retryhttp
 
-# Retries all HTTP status codes, network errors, and timeouts listed above
-# for a maximum of 3 attempts
-@retry_http_errors()
-def get_example():
+# Retries retryable status codes (429, 500, 502, 503, 504), network errors,
+# and timeouts, up to 3 times, with appropriate wait strategies for each
+# type of error. All of these behaviors are customizable.
+@retryhttp.retry()
+def example():
     response = httpx.get("https://example.com/")
     response.raise_for_status()
+    return response.text
 
 ```

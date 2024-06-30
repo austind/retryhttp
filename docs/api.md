@@ -4,11 +4,11 @@
 
 Wraps [`tenacity.retry`][] with sensible defaults for most use cases.
 
-::: retryhttp.retry_http_errors
+::: retryhttp.retry
 
 ## Retry Strategies
 
-If you'd rather use [`tenacity.retry`][] directly (without using [`retryhttp.retry_http_errors`][]), you can use these retry strategies.
+If you'd rather use [`tenacity.retry`][] directly (without using [`retryhttp.retry`][]), you can use these retry strategies.
 
 ::: retryhttp.retry_if_network_error
 
@@ -20,7 +20,7 @@ If you'd rather use [`tenacity.retry`][] directly (without using [`retryhttp.ret
 
 ## Wait Strategies
 
-Wait strategies to use with [`tenacity.retry`][] or [`retryhttp.retry_http_errors`][].
+Wait strategies to use with [`tenacity.retry`][] or [`retryhttp.retry`][].
 
 ::: retryhttp.wait_from_header
 
