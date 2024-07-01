@@ -1,4 +1,4 @@
-from typing import Any, Callable, Sequence, Tuple, Type, TypeVar, Union
+from typing import Any, Sequence, Tuple, Type, Union
 
 from tenacity import (
     RetryCallState,
@@ -14,6 +14,7 @@ from tenacity import (
 )
 from tenacity.wait import wait_base
 
+from ._types import F
 from ._utils import (
     get_default_network_errors,
     get_default_timeouts,
@@ -21,9 +22,6 @@ from ._utils import (
     is_server_error,
 )
 from ._wait import wait_context_aware, wait_rate_limited
-
-F = TypeVar("F", bound=Callable[..., Any])
-WrappedFn = TypeVar("WrappedFn", bound=Callable[..., Any])
 
 
 def retry(
