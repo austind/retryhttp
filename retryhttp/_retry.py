@@ -1,22 +1,26 @@
+from typing import Any, Callable, Sequence, Tuple, Type, TypeVar, Union
+
 from tenacity import (
-    retry_if_exception_type,
-    retry_base,
+    RetryCallState,
     retry_any,
+    retry_base,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
     wait_random_exponential,
-    RetryCallState,
+)
+from tenacity import (
     retry as tenacity_retry,
 )
 from tenacity.wait import wait_base
+
 from ._utils import (
     get_default_network_errors,
     get_default_timeouts,
     is_rate_limited,
     is_server_error,
 )
-from ._wait import wait_rate_limited, wait_context_aware
-from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable
+from ._wait import wait_context_aware, wait_rate_limited
 
 F = TypeVar("F", bound=Callable[..., Any])
 WrappedFn = TypeVar("WrappedFn", bound=Callable[..., Any])

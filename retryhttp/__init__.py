@@ -1,4 +1,3 @@
-from ._wait import wait_rate_limited, wait_context_aware, wait_from_header
 from ._retry import (
     retry,
     retry_if_network_error,
@@ -6,7 +5,7 @@ from ._retry import (
     retry_if_server_error,
     retry_if_timeout,
 )
-
+from ._wait import wait_context_aware, wait_from_header, wait_rate_limited
 
 __all__ = [
     "retry",

@@ -1,13 +1,15 @@
-from typing import Tuple, Type, Union, Sequence
+from typing import Sequence, Tuple, Type, Union
+
+from tenacity import RetryCallState, wait_exponential, wait_random_exponential
+from tenacity.wait import wait_base
+
 from ._utils import (
     get_default_http_status_exceptions,
     get_default_network_errors,
     get_default_timeouts,
-    is_server_error,
     is_rate_limited,
+    is_server_error,
 )
-from tenacity import RetryCallState, wait_exponential, wait_random_exponential
-from tenacity.wait import wait_base
 
 
 class wait_from_header(wait_base):

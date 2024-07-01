@@ -1,8 +1,9 @@
 import httpx
-import respx
-import retryhttp
 import pytest
+import respx
 from tenacity import RetryError
+
+import retryhttp
 
 MOCK_URL = "https://example.com/"
 

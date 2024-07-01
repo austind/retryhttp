@@ -1,9 +1,9 @@
-from tenacity import retry, stop_after_attempt, RetryError
 import httpx
-from retryhttp import retry_if_rate_limited, wait_rate_limited
-import respx
 import pytest
+import respx
+from tenacity import RetryError, retry, stop_after_attempt
 
+from retryhttp import retry_if_rate_limited, wait_rate_limited
 
 MOCK_URL = "https://example.com/"
 
