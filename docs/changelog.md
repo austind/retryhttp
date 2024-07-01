@@ -17,4 +17,4 @@ Added the following methods and classes:
 * [`retryhttp.retry.retry_if_timeout`][]
 * [`retryhttp.wait.wait_from_header`][]
 * [`retryhttp.wait.wait_rate_limited`][]
-* [`retryhttp.wait.wait_http_errors`][]
+* [`retryhttp.wait.wait_context_aware`][]

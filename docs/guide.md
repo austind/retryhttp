@@ -57,7 +57,7 @@ def get_example():
 You don't have to use the [`retryhttp.retry.retry`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) and roll your own approach.
 
 !!! note
-    If you want to apply different wait strategies to specific errors, you'll need to use [`retryhttp.wait.wait_http_errors`][] as a wait strategy, or write your own context-aware wait strategy.
+    If you want to apply different wait strategies to specific errors, you'll need to use [`retryhttp.wait.wait_context_aware`][] as a wait strategy, or write your own context-aware wait strategy.
 
 ```python
 from tenacity import retry, wait_exponential, stop_after_delay

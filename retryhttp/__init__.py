@@ -1,4 +1,4 @@
-from retryhttp.wait import wait_rate_limited, wait_http_errors, wait_from_header
+from retryhttp.wait import wait_rate_limited, wait_context_aware, wait_from_header
 from retryhttp.retry import (
     retry,
     retry_if_network_error,
@@ -14,7 +14,7 @@ __all__ = [
     "retry_if_timeout",
     "retry_if_rate_limited",
     "retry_if_server_error",
-    "wait_http_errors",
+    "wait_context_aware",
     "wait_from_header",
     "wait_rate_limited",
 ]
