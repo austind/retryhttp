@@ -5,6 +5,7 @@
 * Rename `retryhttp.retry_http_errors` to [`retryhttp.retry`][].
 * Rename `retryhttp.wait_http_errors` to [`retryhttp.wait_context_aware`][].
 * Restructure project so all members are part of the root namespace.
+* Move type delcarations to `retryhttp._types`.
 
 ## v0.1.0
 
