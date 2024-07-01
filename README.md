@@ -19,9 +19,9 @@ Several HTTP errors are often transient, and might succeed if retried:
 * Network errors
 * Timeouts
 
-This project aims to simplify retrying these, by extending [`tenacity`](https://github.com/jd/tenacity) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
+This project aims to simplify retrying these, by extending [`tenacity`](https://tenacity.readthedocs.io/) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
 
-Supports exceptions raised by both [`requests`](https://github.com/psf/requests) and [`httpx`](https://github.com/encode/httpx).
+Supports exceptions raised by both [`requests`](https://docs.python-requests.org/en/latest/index.html) and [`httpx`](https://python-httpx.org/).
 
 ## Install
 
@@ -41,7 +41,7 @@ pip install retryhttp[requests] # Supports only requests
 Or, install the latest development snapshot from git:
 
 ```sh
-pip install git+https://github.com/austind/retryhttp.git@main
+pip install git+https://github.com/austind/retryhttp.git@develop
 ```
 
 ## Quickstart
