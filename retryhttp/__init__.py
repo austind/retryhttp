@@ -1,5 +1,5 @@
-from retryhttp.wait import wait_rate_limited, wait_context_aware, wait_from_header
-from retryhttp.retry import (
+from ._wait import wait_rate_limited, wait_context_aware, wait_from_header
+from ._retry import (
     retry,
     retry_if_network_error,
     retry_if_rate_limited,

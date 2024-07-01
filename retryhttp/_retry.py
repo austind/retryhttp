@@ -9,13 +9,13 @@ from tenacity import (
 )
 import tenacity
 from tenacity.wait import wait_base
-from retryhttp.helpers import (
+from ._utils import (
     get_default_network_errors,
     get_default_timeouts,
     is_rate_limited,
     is_server_error,
 )
-from retryhttp.wait import wait_rate_limited, wait_context_aware
+from ._wait import wait_rate_limited, wait_context_aware
 from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable
 
 F = TypeVar("F", bound=Callable[..., Any])

@@ -1,5 +1,5 @@
 from typing import Tuple, Type, Union, Sequence
-from retryhttp.helpers import (
+from ._utils import (
     get_default_http_status_exceptions,
     get_default_network_errors,
     get_default_timeouts,

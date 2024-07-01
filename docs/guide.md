@@ -4,7 +4,7 @@ Under the hood, RetryHTTP is a convenience layer on top of the excellent retry l
 
 `tenacity` works by adding a decorator to functions that might fail. This decorator is configured with retry, wait, and stop strategies that configure what conditions to retry, how long to wait between retries, and when to stop retrying, respectively. Failures could be a raised exception, or a configurable return value. See [`tenacity` documentation](https://tenacity.readthedocs.io/en/latest/index.html) for details.
 
-`retryhttp` provides new retry and stop strategies for potentially transient error conditions raised by `httpx` and `requests`. To make things as convenient as possible, `retryhttp` also provides a [new decorator][retryhttp.retry.retry] that wraps [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) with sensible defaults, which are all customizable.
+`retryhttp` provides new retry and stop strategies for potentially transient error conditions raised by `httpx` and `requests`. To make things as convenient as possible, `retryhttp` also provides a [new decorator][retryhttp.retry] that wraps [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) with sensible defaults, which are all customizable.
 
 ## Examples
 
@@ -54,10 +54,10 @@ def get_example():
 
 ## Advanced Usage
 
-You don't have to use the [`retryhttp.retry.retry`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) and roll your own approach.
+You don't have to use the [`retryhttp.retry`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) and roll your own approach.
 
 !!! note
-    If you want to apply different wait strategies to specific errors, you'll need to use [`retryhttp.wait.wait_context_aware`][] as a wait strategy, or write your own context-aware wait strategy.
+    If you want to apply different wait strategies to specific errors, you'll need to use [`retryhttp.wait_context_aware`][] as a wait strategy, or write your own context-aware wait strategy.
 
 ```python
 from tenacity import retry, wait_exponential, stop_after_delay
