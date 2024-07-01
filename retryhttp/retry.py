@@ -171,8 +171,7 @@ class retry_if_server_error(retry_base):
     """Retry certain server errors (5xx).
 
     Args:
-        server_error_codes: One or more 5xx errors to retry. Defaults to
-            500, 502, 503, and 504.
+        server_error_codes: One or more 5xx errors to retry.
 
     """
 

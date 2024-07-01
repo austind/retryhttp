@@ -68,28 +68,23 @@ class wait_context_aware(wait_base):
         wait_server_errors: Wait strategy to use with server errors.
         wait_network_errors: Wait strategy to use with network errors.
         wait_timeouts: Wait strategy to use with timeouts.
-        wait_rate_limited: Wait strategy to use with 429 Too Many Requests.
+        wait_rate_limited: Wait strategy to use with `429 Too Many Requests`.
         server_error_codes: One or more 5xx HTTP status codes that will trigger
-            `wait_server_errors`. If omitted, defaults to:
-
-            - 500
-            - 502
-            - 503
-            - 504
+            `wait_server_errors`.
         network_errors: One or more exceptions that will trigger `wait_network_errors`.
             If omitted, defaults to:
 
-            - httpx.ConnectError
-            - httpx.ReadError
-            - httpx.WriteError
-            - requests.ConnectionError
+            - `httpx.ConnectError`
+            - `httpx.ReadError`
+            - `httpx.WriteError`
+            - `requests.ConnectionError`
         timeouts: One or more exceptions that will trigger `wait_timeouts`. If omitted,
             defaults to:
 
-            - httpx.ConnectTimeout
-            - httpx.ReadTimeout
-            - httpx.WriteTimeout
-            - requests.Timeout
+            - `httpx.ConnectTimeout`
+            - `httpx.ReadTimeout`
+            - `httpx.WriteTimeout`
+            - `requests.Timeout`
     """
 
     def __init__(
@@ -98,12 +93,7 @@ class wait_context_aware(wait_base):
         wait_network_errors: wait_base = wait_exponential(),
         wait_timeouts: wait_base = wait_random_exponential(),
         wait_rate_limited: wait_base = wait_rate_limited(),
-        server_error_codes: Union[Sequence[int], int] = (
-            500,
-            502,
-            503,
-            504,
-        ),
+        server_error_codes: Union[Sequence[int], int] = (500, 502, 503, 504),
         network_errors: Union[
             Type[BaseException], Tuple[Type[BaseException], ...], None
         ] = None,

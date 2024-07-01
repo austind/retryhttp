@@ -3,6 +3,7 @@
 ## v1.0.0
 
 * Rename `retryhttp.retry_http_errors` to [`retryhttp.retry.retry`][].
+* Rename `retryhttp.wait_http_errors` to [`retryhttp.wait_context_aware`][].
 
 ## v0.1.0
 
