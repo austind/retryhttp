@@ -16,8 +16,7 @@ from ._utils import (
     is_server_error,
 )
 from ._wait import wait_rate_limited, wait_context_aware
-from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable, overload
-from functools import wraps
+from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable
 
 F = TypeVar("F", bound=Callable[..., Any])
 WrappedFn = TypeVar("WrappedFn", bound=Callable[..., Any])
