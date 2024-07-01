@@ -167,7 +167,7 @@ class retry_if_rate_limited(retry_base):
     """Retry if server responds with `429 Too Many Requests` (rate limited)."""
 
     def __call__(self, retry_state: RetryCallState) -> bool:
-        if retry_state.outcome:
+        if retry_state.outcome and retry_state.outcome.failed:
             return is_rate_limited(retry_state.outcome.exception())
         return False
 
@@ -187,7 +187,7 @@ class retry_if_server_error(retry_base):
         self.server_error_codes = server_error_codes
 
     def __call__(self, retry_state: RetryCallState) -> bool:
-        if retry_state.outcome:
+        if retry_state.outcome and retry_state.outcome.failed:
             exc = retry_state.outcome.exception()
             return is_server_error(exc, self.server_error_codes)
         return False
