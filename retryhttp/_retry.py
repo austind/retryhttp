@@ -6,8 +6,8 @@ from tenacity import (
     wait_exponential,
     wait_random_exponential,
     RetryCallState,
+    retry as tenacity_retry,
 )
-import tenacity
 from tenacity.wait import wait_base
 from ._utils import (
     get_default_network_errors,
@@ -16,9 +16,11 @@ from ._utils import (
     is_server_error,
 )
 from ._wait import wait_rate_limited, wait_context_aware
-from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable
+from typing import Any, Tuple, Type, Union, Sequence, TypeVar, Callable, overload
+from functools import wraps
 
 F = TypeVar("F", bound=Callable[..., Any])
+WrappedFn = TypeVar("WrappedFn", bound=Callable[..., Any])
 
 
 def retry(
@@ -127,7 +129,7 @@ def retry(
     stop = dkw.get("stop") or stop_after_attempt(max_attempt_number)
 
     def decorator(func: F) -> F:
-        return tenacity.retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
+        return tenacity_retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
 
     return decorator
 
