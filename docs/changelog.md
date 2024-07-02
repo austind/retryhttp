@@ -6,6 +6,7 @@
 * Rename `retryhttp.wait_http_errors` to [`retryhttp.wait_context_aware`][].
 * Restructure project so all members are part of the root namespace.
 * Move type delcarations to `retryhttp._types`.
+* Enable bare decorator syntax for [`retryhttp.retry`][] (i.e., `@retry` works as well as `@retry()`)
 
 ## v0.1.0
 

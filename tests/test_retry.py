@@ -8,7 +8,7 @@ import retryhttp
 MOCK_URL = "https://example.com/"
 
 
-@retryhttp.retry()
+@retryhttp.retry
 def default_args():
     return httpx.get(MOCK_URL)
 

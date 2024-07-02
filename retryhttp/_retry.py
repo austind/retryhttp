@@ -1,4 +1,4 @@
-from typing import Any, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Optional, Sequence, Tuple, Type, Union
 
 from tenacity import (
     RetryCallState,
@@ -25,6 +25,8 @@ from ._wait import wait_context_aware, wait_rate_limited
 
 
 def retry(
+    func: Optional[Callable] = None,
+    *,
     max_attempt_number: int = 3,
     retry_server_errors: bool = True,
     retry_network_errors: bool = True,
@@ -39,8 +41,7 @@ def retry(
         Type[BaseException], Tuple[Type[BaseException], ...], None
     ] = None,
     timeouts: Union[Type[BaseException], Tuple[Type[BaseException], ...], None] = None,
-    *dargs: Any,
-    **dkw: Any,
+    **kwargs: Any,
 ) -> Any:
     """Retry potentially transient HTTP errors with sensible default behavior.
 
@@ -116,22 +117,24 @@ def retry(
     if not retry_strategies:
         raise RuntimeError("No retry strategies enabled.")
 
-    retry = dkw.get("retry") or retry_any(*retry_strategies)
+    retry = kwargs.get("retry") or retry_any(*retry_strategies)
 
     # We don't need to conditionally build our wait strategy since each strategy
     # will only apply if the corresponding retry strategy is in use.
-    wait = dkw.get("wait") or wait_context_aware(
+    wait = kwargs.get("wait") or wait_context_aware(
         wait_server_errors=wait_server_errors,
         wait_network_errors=wait_network_errors,
         wait_timeouts=wait_timeouts,
         wait_rate_limited=wait_rate_limited,
     )
 
-    stop = dkw.get("stop") or stop_after_attempt(max_attempt_number)
+    stop = kwargs.get("stop") or stop_after_attempt(max_attempt_number)
 
     def decorator(func: F) -> F:
-        return tenacity_retry(retry=retry, wait=wait, stop=stop, *dargs, **dkw)(func)
+        return tenacity_retry(retry=retry, wait=wait, stop=stop, **kwargs)(func)
 
+    if func:
+        return decorator(func)
     return decorator
 
 

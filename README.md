@@ -25,10 +25,13 @@ Supports exceptions raised by both [`requests`](https://docs.python-requests.org
 
 ## Install
 
-Install most recent stable release from PyPI:
+## Install
+
+Install from PyPI:
 
 ```sh
-pip install retryhttp # Supports both HTTPX and requests
+# Supports both HTTPX and requests
+pip install retryhttp
 ```
 
 You can also install support for only HTTPX or requests:
@@ -48,12 +51,12 @@ pip install git+https://github.com/austind/retryhttp.git@develop
 
 ```python
 import httpx
-import retryhttp
+from retryhttp import retry
 
 # Retries retryable status codes (429, 500, 502, 503, 504), network errors,
 # and timeouts, up to 3 times, with appropriate wait strategies for each
 # type of error. All of these behaviors are customizable.
-@retryhttp.retry()
+@retry
 def example():
     response = httpx.get("https://example.com/")
     response.raise_for_status()
