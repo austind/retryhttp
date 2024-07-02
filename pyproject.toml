@@ -76,3 +76,7 @@ packages = ["retryhttp"]
 line-length = 88
 indent-width = 4
 target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

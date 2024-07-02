@@ -1,23 +1,24 @@
 import httpx
-import respx
-from retryhttp import retry_http_errors
 import pytest
+import respx
 from tenacity import RetryError
+
+import retryhttp
 
 MOCK_URL = "https://example.com/"
 
 
-@retry_http_errors()
+@retryhttp.retry
 def default_args():
     return httpx.get(MOCK_URL)
 
 
-@retry_http_errors(max_attempt_number=2)
+@retryhttp.retry(max_attempt_number=2)
 def retry_max_2():
     return httpx.get(MOCK_URL)
 
 
-@retry_http_errors(reraise=True)
+@retryhttp.retry(reraise=True)
 def reraise():
     return httpx.get(MOCK_URL)
 

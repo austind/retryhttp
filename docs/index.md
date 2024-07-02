@@ -18,16 +18,17 @@ Several HTTP errors are often transient, and might succeed if retried:
 * Network errors
 * Timeouts
 
-This project aims to simplify retrying these, by extending [`tenacity`](https://github.com/jd/tenacity) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
+This project aims to simplify retrying these, by extending [`tenacity`](https://tenacity.readthedocs.io/) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
 
-Supports exceptions raised by both [`requests`](https://github.com/psf/requests) and [`httpx`](https://github.com/encode/httpx).
+Supports exceptions raised by both [`requests`](https://docs.python-requests.org/en/latest/index.html) and [`httpx`](https://python-httpx.org/).
 
 ## Install
 
-Install most recent stable release from PyPI:
+Install from PyPI:
 
 ```sh
-pip install retryhttp # Supports both HTTPX and requests
+# Supports both HTTPX and requests
+pip install retryhttp
 ```
 
 You can also install support for only HTTPX or requests:
@@ -40,20 +41,22 @@ pip install retryhttp[requests] # Supports only requests
 Or, install the latest development snapshot from git:
 
 ```sh
-pip install git+https://github.com/austind/retryhttp.git@main
+pip install git+https://github.com/austind/retryhttp.git@develop
 ```
 
 ## Quickstart
 
 ```python
 import httpx
-from retryhttp import retry_http_errors
+from retryhttp import retry
 
-# Retries all HTTP status codes, network errors, and timeouts listed above
-# for a maximum of 3 attempts
-@retry_http_errors()
-def get_example():
+# Retries retryable status codes (429, 500, 502, 503, 504), network errors,
+# and timeouts, up to 3 times, with appropriate wait strategies for each
+# type of error. All of these behaviors are customizable.
+@retry
+def example():
     response = httpx.get("https://example.com/")
     response.raise_for_status()
+    return response.text
 
 ```
