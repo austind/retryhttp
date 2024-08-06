@@ -85,6 +85,7 @@ def retry(
             - `httpx.ReadError`
             - `httpx.WriteError`
             - `requests.ConnectError`
+            - `requests.exceptions.ChunkedEncodingError`
         timeouts: One or more exceptions that will trigger `wait_timeouts` if
             `retry_timeouts` is `True`. Defaults to:
 
