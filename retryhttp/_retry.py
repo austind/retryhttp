@@ -60,6 +60,7 @@ def retry(
         - `httpx.ReadError`
         - `httpx.WriteError`
         - `requests.ConnectionError`
+        - `requests.exceptions.ChunkedEncodingError`
     - Timeouts:
         - `httpx.TimeoutException`
         - `requests.Timeout`
@@ -149,6 +150,7 @@ class retry_if_network_error(retry_if_exception_type):
             - `httpx.ReadError`
             - `httpx.WriteError`
             - `requests.ConnectionError`
+            - `requests.exceptions.ChunkedEncodingError`
 
     """
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0
+
+* API is now stable. Any breaking changes will follow [SemVer](https://semver.org/) guidelines.
+* Added `requests.exceptions.ChunkedEncodingError` to the list of default network errors.
+
 ## v0.2.0
 
 * Rename `retryhttp.retry_http_errors` to [`retryhttp.retry`][].

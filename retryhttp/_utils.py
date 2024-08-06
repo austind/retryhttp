@@ -46,7 +46,12 @@ def get_default_network_errors() -> (
             ]
         )
     if _REQUESTS_INSTALLED:
-        exceptions.append(requests.ConnectionError)
+        exceptions.extend(
+            [
+                requests.ConnectionError,
+                requests.exceptions.ChunkedEncodingError,
+            ]
+        )
     return tuple(exceptions)
 
 

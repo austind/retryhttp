@@ -80,6 +80,7 @@ class wait_context_aware(wait_base):
             - `httpx.ReadError`
             - `httpx.WriteError`
             - `requests.ConnectionError`
+            - `requests.exceptions.ChunkedEncodingError`
         timeouts: One or more exceptions that will trigger `wait_timeouts`. If omitted,
             defaults to:
 
