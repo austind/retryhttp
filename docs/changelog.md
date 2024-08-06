@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.1
+
+* Fix documentation errors.
+
 ## v1.0.0
 
 * API is now stable. Any breaking changes will follow [SemVer](https://semver.org/) guidelines.
