@@ -4,8 +4,6 @@ Retry potentially transient HTTP errors in Python.
 
 See [documentation](https://retryhttp.readthedocs.io/en/latest/).
 
-**Note**: This project is in beta status. The API may change significantly. Please [open a discussion](https://github.com/austind/retryhttp/discussions/new/choose) if you see something that you think should change!
-
 ## Overview
 
 Several HTTP errors are often transient, and might succeed if retried:
