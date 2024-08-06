@@ -23,8 +23,6 @@ Supports exceptions raised by both [`requests`](https://docs.python-requests.org
 
 ## Install
 
-## Install
-
 Install from PyPI:
 
 ```sh
