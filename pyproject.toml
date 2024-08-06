@@ -10,8 +10,8 @@ build-backend="setuptools.build_meta"
 
 [project]
 name = "retryhttp"
-version = "0.2.0"
-description = "Retry commonly transient HTTP errors."
+version = "1.0.0"
+description = "Retry potentially transient HTTP errors in Python."
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.8"
@@ -22,7 +22,7 @@ maintainers = [
   {name = "Austin de Coup-Crank", email = "austindcc@gmail.com"},
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
@@ -33,6 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
     "Topic :: Utilities",
 ]
 dependencies = [
@@ -65,6 +66,7 @@ docs = [
 ]
 
 [project.urls]
+Documentation = "https://retryhttp.readthedocs.io"
 Homepage = "https://github.com/austind/retryhttp"
 Repository = "https://github.com/austind/retryhttp.git"
 Issues = "https://github.com/austind/retryhttp/issues"
