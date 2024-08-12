@@ -87,7 +87,7 @@ class wait_context_aware(wait_base):
         wait_server_errors: Wait strategy to use with server errors.
         wait_network_errors: Wait strategy to use with network errors.
         wait_timeouts: Wait strategy to use with timeouts.
-        wait_rate_limited: Wait strategy to use with `429 Too Many Requests`.
+        wait_rate_limited: Wait strategy to use when rate limited.
         server_error_codes: One or more 5xx HTTP status codes that will trigger
             `wait_server_errors`.
         network_errors: One or more exceptions that will trigger `wait_network_errors`.
@@ -105,6 +105,7 @@ class wait_context_aware(wait_base):
             - `httpx.ReadTimeout`
             - `httpx.WriteTimeout`
             - `requests.Timeout`
+
     """
 
     def __init__(

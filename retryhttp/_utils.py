@@ -57,14 +57,8 @@ def get_default_timeouts() -> (
 ):
     """Get all timeout exceptions to use by default.
 
-    Args:
-        N/A
-
     Returns:
-        Tuple of timeout exceptions.
-
-    Raises:
-        N/A
+        tuple: Timeout exceptions.
 
     """
     exceptions = []
@@ -80,14 +74,8 @@ def get_default_http_status_exceptions() -> (
 ):
     """Get default HTTP status 4xx or 5xx exceptions.
 
-    Args:
-        N/A
-
     Returns:
         tuple: HTTP status exceptions.
-
-    Raises:
-        N/A
 
     """
     exceptions = []
@@ -130,10 +118,7 @@ def is_server_error(
             to all (500-599).
 
     Returns:
-        Boolean of whether exc indicates an error included in status_codes.
-
-    Raises:
-        N/A
+        bool: whether exc indicates an error included in status_codes.
 
     """
     if isinstance(status_codes, int):

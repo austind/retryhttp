@@ -46,7 +46,7 @@ def retry(
     """Retry potentially transient HTTP errors with sensible default behavior.
 
     By default, retries the following errors, for a total of 3 attempts, with
-    exponential backoff (except for `429 Too Many Requests`, which defaults to the
+    exponential backoff (except when rate limited, which defaults to the
     `Retry-After` header, if present):
 
     - HTTP status errors:
@@ -71,11 +71,11 @@ def retry(
         retry_server_errors: Whether to retry 5xx server errors.
         retry_network_errors: Whether to retry network errors.
         retry_timeouts: Whether to retry timeouts.
-        retry_rate_limited: Whether to retry `429 Too Many Requests` errors.
+        retry_rate_limited: Whether to retry when `Retry-After` header received.
         wait_server_errors: Wait strategy to use for server errors.
         wait_network_errors: Wait strategy to use for network errors.
         wait_timeouts: Wait strategy to use for timeouts.
-        wait_rate_limited: Wait strategy to use for `429 Too Many Requests` errors.
+        wait_rate_limited: Wait strategy to use when `Retry-After` header received.
         server_error_codes: One or more 5xx error codes that will trigger `wait_server_errors`
             if `retry_server_errors` is `True`. Defaults to 500, 502, 503, and 504.
         network_errors: One or more exceptions that will trigger `wait_network_errors` if
@@ -96,7 +96,7 @@ def retry(
         Decorated function.
 
     Raises:
-        RuntimeError: if `retry_server_errors`, `retry_network_errors`, `retry_timeouts`,
+        RuntimeError: If `retry_server_errors`, `retry_network_errors`, `retry_timeouts`,
             and `retry_rate_limited` are all `False`.
 
     """
@@ -168,7 +168,7 @@ class retry_if_network_error(retry_if_exception_type):
 
 
 class retry_if_rate_limited(retry_base):
-    """Retry if server responds with `429 Too Many Requests` (rate limited)."""
+    """Retry if server responds with a `Retry-After` header."""
 
     def __call__(self, retry_state: RetryCallState) -> bool:
         if retry_state.outcome and retry_state.outcome.failed:
