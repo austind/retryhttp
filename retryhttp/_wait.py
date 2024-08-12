@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+import sys
+from datetime import datetime
 from typing import Sequence, Tuple, Type, Union
 
 from tenacity import RetryCallState, wait_exponential, wait_random_exponential
@@ -51,7 +52,12 @@ class wait_from_header(wait_base):
 
                 try:
                     retry_after = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
-                    now = datetime.now(UTC)
+                    if sys.version_info <= (3, 10):
+                        now = datetime.utcnow()
+                    else:
+                        from datetime import UTC
+
+                        now = datetime.now(UTC)
                     return float((retry_after - now).seconds)
                 except ValueError:
                     pass
