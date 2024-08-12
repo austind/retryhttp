@@ -1,8 +1,5 @@
 from typing import Optional, Sequence, Tuple, Type, Union
 
-import httpx
-import requests
-
 _HTTPX_INSTALLED = False
 _REQUESTS_INSTALLED = False
 
