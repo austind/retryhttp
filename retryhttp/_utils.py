@@ -84,7 +84,7 @@ def get_default_http_status_exceptions() -> (
         N/A
 
     Returns:
-        Tuple of HTTP status exceptions.
+        tuple: HTTP status exceptions.
 
     Raises:
         N/A
@@ -99,20 +99,22 @@ def get_default_http_status_exceptions() -> (
 
 
 def is_rate_limited(exc: Union[BaseException, None]) -> bool:
-    """Whether a given exception indicates a 429 Too Many Requests error.
+    """Whether a given exception indicates the user has been rate limited.
+
+    Rate limiting should return a `429 Too Many Requests` status, but in
+    practice, servers may return `503 Service Unavailable`, or possibly
+    another code. In any case, if rate limiting is the issue, the server
+    will include a `Retry-After` header.
 
     Args:
         exc: Exception to consider.
 
     Returns:
-        Boolean of whether exc indicates a 429 Too Many Requests error.
-
-    Raises:
-        N/A
+        bool: Whether exc indicates rate limiting.
 
     """
     if isinstance(exc, get_default_http_status_exceptions()):
-        return exc.response.status_code == 429
+        return "Retry-After" in exc.response.headers.keys()
     return False
 
 
