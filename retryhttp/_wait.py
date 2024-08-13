@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
-from typing import Sequence, Tuple, Type, Union
+from typing import Optional, Sequence, Tuple, Type, Union
 
+from pydantic import PositiveFloat, PositiveInt
 from tenacity import RetryCallState, wait_exponential, wait_random_exponential
 from tenacity.wait import wait_base
 
@@ -25,18 +26,28 @@ class wait_from_header(wait_base):
     More info on HTTP-date format: https://httpwg.org/specs/rfc9110.html#http.date
 
     Args:
-        header: Header to attempt to derive wait value from.
-        fallback: Wait strategy to use if `header` is not present, or unable
-            to parse to a `float` value.
+        header (str): Header to attempt to derive wait value from.
+        wait_max (float): Maximum time to wait, in seconds. Defaults to 60.0s.
+        fallback (wait_base): Wait strategy to use if `header` is not present,
+            or unable to parse to a `float` value, or if value parsed from header
+            exceeds `wait_max`. Defaults to `None`.
+
+    Raises:
+        ValueError: If `fallback` is not provided, and any one of the following is true:
+            * header is not present
+            * the value cannot be parsed to a `float`
+            * the value exceeds `wait_max`
 
     """
 
     def __init__(
         self,
         header: str,
-        fallback: wait_base,
+        wait_max: Union[PositiveFloat, PositiveInt] = 60.0,
+        fallback: Optional[wait_base] = None,
     ) -> None:
         self.header = header
+        self.wait_max = float(wait_max)
         self.fallback = fallback
 
     def __call__(self, retry_state: RetryCallState) -> float:
@@ -44,7 +55,6 @@ class wait_from_header(wait_base):
             exc = retry_state.outcome.exception()
             if isinstance(exc, get_default_http_status_exceptions()):
                 value = exc.response.headers.get(self.header, "")
-
                 try:
                     return float(value)
                 except ValueError:
