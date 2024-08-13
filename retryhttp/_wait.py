@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 from typing import Optional, Sequence, Tuple, Type, Union
 
@@ -19,56 +20,81 @@ class wait_from_header(wait_base):
     """Wait strategy that derives the wait value from an HTTP header.
 
     Value may be either an integer representing the number of seconds to wait
-    before retrying, or a date in HTTP-date format, indicating when it is
-    acceptable to retry the request. If such a date value is found, this method
-    will use that value to determine the correct number of seconds to wait.
+    before retrying, or a future datetime in HTTP-date format, indicating when it is
+    acceptable to retry the request.
 
     More info on HTTP-date format: https://httpwg.org/specs/rfc9110.html#http.date
 
     Args:
         header (str): Header to attempt to derive wait value from.
-        wait_max (float): Maximum time to wait, in seconds. Defaults to 60.0s.
+        wait_max (float): Maximum time to wait, in seconds. Defaults to 120.0s. If
+            `None` is given, will wait indefinitely. Use `Non` with caution, as your
+            program will hang if the server responds with an excessive wait value.
         fallback (wait_base): Wait strategy to use if `header` is not present,
             or unable to parse to a `float` value, or if value parsed from header
             exceeds `wait_max`. Defaults to `None`.
 
     Raises:
-        ValueError: If `fallback` is not provided, and any one of the following is true:
-            * header is not present
-            * the value cannot be parsed to a `float`
-            * the value exceeds `wait_max`
+        ValueError: If `fallback` is `None`, and any one of the following is true:
+            * header is not present;
+            * the value cannot be parsed to a `float`;
+            * the value exceeds `wait_max`.
 
     """
 
     def __init__(
         self,
         header: str,
-        wait_max: Union[PositiveFloat, PositiveInt] = 60.0,
+        wait_max: Union[PositiveFloat, PositiveInt, None] = 120.0,
         fallback: Optional[wait_base] = None,
     ) -> None:
         self.header = header
-        self.wait_max = float(wait_max)
+        self.wait_max = float(wait_max) if wait_max else None
         self.fallback = fallback
 
-    def __call__(self, retry_state: RetryCallState) -> float:
+    def _get_wait_value(self, retry_state: RetryCallState) -> float:
+        """Attempts parse a wait value from header.
+
+        Args:
+            retry_state (RetryCallState): The retry call state of the request.
+
+        Returns:
+            float: Seconds to wait, as derived from `self.header`.
+
+        Raises:
+            ValueError: If unable to parse a float from `self.header`.
+
+        """
         if retry_state.outcome:
             exc = retry_state.outcome.exception()
             if isinstance(exc, get_default_http_status_exceptions()):
                 value = exc.response.headers.get(self.header, "")
-                try:
+                if re.match(r"^\d+$", value):
                     return float(value)
-                except ValueError:
-                    pass
-
-                try:
+                else:
                     retry_after = datetime.strptime(value, HTTP_DATE_FORMAT)
                     retry_after = retry_after.replace(tzinfo=timezone.utc)
                     now = datetime.now(timezone.utc)
                     return float((retry_after - now).seconds)
-                except ValueError:
-                    pass
+        raise ValueError(f'Unable to parse wait time from header: "{self.header}"')
 
-        return self.fallback(retry_state)
+    def __call__(self, retry_state: RetryCallState) -> float:
+        if self.fallback:
+            try:
+                value = self._get_wait_value(retry_state=retry_state)
+                if self.wait_max and value > self.wait_max:
+                    return self.fallback(retry_state=retry_state)
+                return value
+            except ValueError:
+                return self.fallback(retry_state=retry_state)
+        else:
+            value = self._get_wait_value(retry_state=retry_state)
+            if self.wait_max and value > self.wait_max:
+                raise ValueError(
+                    f'Wait value parsed from header "{self.header}" ({value}) '
+                    f"is greater than `wait_max` ({self.wait_max})"
+                )
+            return value
 
 
 class wait_rate_limited(wait_from_header):
