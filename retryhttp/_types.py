@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Any, Callable, TypeVar
 
+from ._constants import HTTP_DATE_FORMAT
+
 
 class HTTPDate(str):
     @classmethod
@@ -10,7 +12,7 @@ class HTTPDate(str):
     @classmethod
     def validate(cls, value: str) -> str:
         try:
-            datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
+            datetime.strptime(value, HTTP_DATE_FORMAT)
         except ValueError:
             raise ValueError(f"Invalid HTTP-date format: {value}")
         return value
