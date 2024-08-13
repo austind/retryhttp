@@ -1,14 +1,19 @@
+from typing import Union
+
 import httpx
 import pytest
 import respx
+from pydantic import PositiveInt
 from tenacity import RetryError, retry, stop_after_attempt
 
 from retryhttp import retry_if_rate_limited, wait_rate_limited
+from retryhttp._types import HTTPDate
+from retryhttp._utils import get_http_date
 
 MOCK_URL = "https://example.com/"
 
 
-def rate_limited_response(retry_after: int = 1):
+def rate_limited_response(retry_after: Union[HTTPDate, PositiveInt] = 1):
     return httpx.Response(
         status_code=httpx.codes.TOO_MANY_REQUESTS,
         headers={"Retry-After": str(retry_after)},
@@ -30,9 +35,24 @@ def retry_rate_limited():
 def test_rate_limited_failure():
     route = respx.get(MOCK_URL).mock(
         side_effect=[
-            rate_limited_response(),
-            rate_limited_response(),
-            rate_limited_response(),
+            rate_limited_response(retry_after=1),
+            rate_limited_response(retry_after=1),
+            rate_limited_response(retry_after=1),
+        ]
+    )
+    with pytest.raises(RetryError):
+        retry_rate_limited()
+    assert route.call_count == 3
+    assert route.calls[2].response.status_code == 429
+
+
+@respx.mock
+def test_rate_limited_failure_httpdate():
+    route = respx.get(MOCK_URL).mock(
+        side_effect=[
+            rate_limited_response(retry_after=get_http_date(delta_seconds=2)),
+            rate_limited_response(retry_after=get_http_date(delta_seconds=2)),
+            rate_limited_response(retry_after=get_http_date(delta_seconds=2)),
         ]
     )
     with pytest.raises(RetryError):
