@@ -4,6 +4,7 @@ from typing import Sequence, Tuple, Type, Union
 from tenacity import RetryCallState, wait_exponential, wait_random_exponential
 from tenacity.wait import wait_base
 
+from ._constants import HTTP_DATE_FORMAT
 from ._utils import (
     get_default_http_status_exceptions,
     get_default_network_errors,
@@ -50,7 +51,7 @@ class wait_from_header(wait_base):
                     pass
 
                 try:
-                    retry_after = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
+                    retry_after = datetime.strptime(value, HTTP_DATE_FORMAT)
                     retry_after = retry_after.replace(tzinfo=timezone.utc)
                     now = datetime.now(timezone.utc)
                     return float((retry_after - now).seconds)
