@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Sequence, Tuple, Type, Union
+
+from retryhttp._types import HTTPDate
 
 _HTTPX_INSTALLED = False
 _REQUESTS_INSTALLED = False
@@ -126,3 +129,23 @@ def is_server_error(
     if isinstance(exc, get_default_http_status_exceptions()):
         return exc.response.status_code in status_codes
     return False
+
+
+def get_http_date(delta_seconds: int = 0) -> HTTPDate:
+    """Builds a valid HTTP-date string.
+
+    By default, returns an HTTP-date string for the current timestamp.
+
+    Args:
+        delta_seconds (int): Number of seconds to offset the timestamp
+            by. If a negative integer is passed, result will be in the
+            past.
+
+    Returns:
+        HTTPDate: A valid HTTP-date string.
+
+    """
+    date = datetime.now(timezone.utc)
+    if delta_seconds:
+        date = date + timedelta(seconds=delta_seconds)
+    return HTTPDate(date.strftime("%a, %d %b %Y %H:%M:%S GMT"))
