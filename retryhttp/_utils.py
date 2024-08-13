@@ -102,7 +102,7 @@ def is_rate_limited(exc: Union[BaseException, None]) -> bool:
 
     """
     if isinstance(exc, get_default_http_status_exceptions()):
-        return "Retry-After" in exc.response.headers.keys()
+        return "retry-after" in exc.response.headers.keys()
     return False
 
 
