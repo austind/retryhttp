@@ -10,7 +10,7 @@ build-backend="setuptools.build_meta"
 
 [project]
 name = "retryhttp"
-version = "1.0.1"
+version = "1.1.0"
 description = "Retry potentially transient HTTP errors in Python."
 license = {file = "LICENSE"}
 readme = "README.md"
