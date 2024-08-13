@@ -1,7 +1,7 @@
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Sequence, Tuple, Type, Union
 
-import httpx
-import requests
+from retryhttp._types import HTTPDate
 
 _HTTPX_INSTALLED = False
 _REQUESTS_INSTALLED = False
@@ -60,14 +60,8 @@ def get_default_timeouts() -> (
 ):
     """Get all timeout exceptions to use by default.
 
-    Args:
-        N/A
-
     Returns:
-        Tuple of timeout exceptions.
-
-    Raises:
-        N/A
+        tuple: Timeout exceptions.
 
     """
     exceptions = []
@@ -83,14 +77,8 @@ def get_default_http_status_exceptions() -> (
 ):
     """Get default HTTP status 4xx or 5xx exceptions.
 
-    Args:
-        N/A
-
     Returns:
-        Tuple of HTTP status exceptions.
-
-    Raises:
-        N/A
+        tuple: HTTP status exceptions.
 
     """
     exceptions = []
@@ -102,20 +90,22 @@ def get_default_http_status_exceptions() -> (
 
 
 def is_rate_limited(exc: Union[BaseException, None]) -> bool:
-    """Whether a given exception indicates a 429 Too Many Requests error.
+    """Whether a given exception indicates the user has been rate limited.
+
+    Rate limiting should return a `429 Too Many Requests` status, but in
+    practice, servers may return `503 Service Unavailable`, or possibly
+    another code. In any case, if rate limiting is the issue, the server
+    will include a `Retry-After` header.
 
     Args:
         exc: Exception to consider.
 
     Returns:
-        Boolean of whether exc indicates a 429 Too Many Requests error.
-
-    Raises:
-        N/A
+        bool: Whether exc indicates rate limiting.
 
     """
     if isinstance(exc, get_default_http_status_exceptions()):
-        return exc.response.status_code == 429
+        return "retry-after" in exc.response.headers.keys()
     return False
 
 
@@ -131,10 +121,7 @@ def is_server_error(
             to all (500-599).
 
     Returns:
-        Boolean of whether exc indicates an error included in status_codes.
-
-    Raises:
-        N/A
+        bool: whether exc indicates an error included in status_codes.
 
     """
     if isinstance(status_codes, int):
@@ -142,3 +129,23 @@ def is_server_error(
     if isinstance(exc, get_default_http_status_exceptions()):
         return exc.response.status_code in status_codes
     return False
+
+
+def get_http_date(delta_seconds: int = 0) -> HTTPDate:
+    """Builds a valid HTTP-date string.
+
+    By default, returns an HTTP-date string for the current timestamp.
+
+    Args:
+        delta_seconds (int): Number of seconds to offset the timestamp
+            by. If a negative integer is passed, result will be in the
+            past.
+
+    Returns:
+        HTTPDate: A valid HTTP-date string.
+
+    """
+    date = datetime.now(timezone.utc)
+    if delta_seconds:
+        date = date + timedelta(seconds=delta_seconds)
+    return HTTPDate(date.strftime("%a, %d %b %Y %H:%M:%S GMT"))
