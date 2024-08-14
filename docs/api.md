@@ -26,4 +26,4 @@ Wait strategies to use with [`tenacity.retry`](https://tenacity.readthedocs.io/e
 
 ::: retryhttp.wait_context_aware
 
-::: retryhttp.wait_rate_limited
+::: retryhttp.wait_retry_after
