@@ -168,10 +168,14 @@ class wait_context_aware(wait_base):
 
     def __init__(
         self,
-        wait_server_errors: wait_base = wait_random_exponential(),
+        wait_server_errors: wait_base = wait_retry_after(
+            fallback=wait_random_exponential(),
+        ),
         wait_network_errors: wait_base = wait_exponential(),
         wait_timeouts: wait_base = wait_random_exponential(),
-        wait_rate_limited: wait_base = wait_retry_after(),
+        wait_rate_limited: wait_base = wait_retry_after(
+            fallback=wait_exponential(),
+        ),
         server_error_codes: Union[Sequence[int], int] = (500, 502, 503, 504),
         network_errors: Union[
             Type[BaseException], Tuple[Type[BaseException], ...], None
