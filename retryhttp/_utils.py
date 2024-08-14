@@ -93,11 +93,6 @@ def get_default_http_status_exceptions() -> (
 def is_rate_limited(exc: Union[BaseException, None]) -> bool:
     """Whether a given exception indicates the user has been rate limited.
 
-    Rate limiting should return a `429 Too Many Requests` status, but in
-    practice, servers may return `503 Service Unavailable`, or possibly
-    another code. In any case, if rate limiting is the issue, the server
-    will include a `Retry-After` header.
-
     Args:
         exc: Exception to consider.
 
@@ -106,7 +101,7 @@ def is_rate_limited(exc: Union[BaseException, None]) -> bool:
 
     """
     if isinstance(exc, get_default_http_status_exceptions()):
-        return "retry-after" in exc.response.headers.keys()
+        return exc.response.status_code == 429
     return False
 
 
