@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.0
+
+* [`retryhttp.wait_from_header`][] now supports the `wait_max` argument, which defaults
+to 120.0 seconds.
+
 ## v1.1.0
 
 * Add [HTTP-date](https://httpwg.org/specs/rfc9110.html#http.date) value parsing for [`retryhttp.wait_from_header`][]
