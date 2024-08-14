@@ -110,8 +110,19 @@ class wait_retry_after(wait_from_header):
     integer, indicating the number of seconds to wait before retrying.
 
     Args:
-        fallback: Wait strategy to use if `Retry-After` header is not present, or unable
-            to parse to a `float` value.
+        wait_max (float): Maximum time to wait, in seconds. Defaults to 120.0s. If
+            `None` is given, will wait indefinitely. Use `Non` with caution, as your
+            program will hang if the server responds with an excessive wait value.
+        fallback (wait_base): Wait strategy to use if `header` is not present,
+            or unable to parse to a `float` value, or if value parsed from header
+            exceeds `wait_max`. Defaults to `None`.
+
+    Raises:
+        ValueError: If `fallback` is `None`, and any one of the following is true:
+            * `Retry-After` header is not present;
+            * the value cannot be parsed to a `float`;
+            * the value exceeds `wait_max`;
+            * the value is a date in the past.
 
     """
 
