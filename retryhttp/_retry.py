@@ -21,7 +21,7 @@ from ._utils import (
     is_rate_limited,
     is_server_error,
 )
-from ._wait import wait_context_aware, wait_rate_limited
+from ._wait import wait_context_aware, wait_retry_after
 
 
 def retry(
@@ -35,7 +35,7 @@ def retry(
     wait_server_errors: wait_base = wait_random_exponential(),
     wait_network_errors: wait_base = wait_exponential(),
     wait_timeouts: wait_base = wait_random_exponential(),
-    wait_rate_limited: wait_base = wait_rate_limited(),
+    wait_rate_limited: wait_base = wait_retry_after(),
     server_error_codes: Union[Sequence[int], int] = (500, 502, 503, 504),
     network_errors: Union[
         Type[BaseException], Tuple[Type[BaseException], ...], None

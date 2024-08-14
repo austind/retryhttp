@@ -5,7 +5,12 @@ from ._retry import (
     retry_if_server_error,
     retry_if_timeout,
 )
-from ._wait import wait_context_aware, wait_from_header, wait_rate_limited
+from ._wait import (
+    wait_context_aware,
+    wait_from_header,
+    wait_rate_limited,
+    wait_retry_after,
+)
 
 __all__ = [
     "retry",
@@ -16,4 +21,5 @@ __all__ = [
     "wait_context_aware",
     "wait_from_header",
     "wait_rate_limited",
+    "wait_retry_after",
 ]
