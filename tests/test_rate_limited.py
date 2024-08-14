@@ -3,7 +3,7 @@ import pytest
 import respx
 from tenacity import RetryError, retry, stop_after_attempt
 
-from retryhttp import retry_if_rate_limited, wait_rate_limited
+from retryhttp import retry_if_rate_limited, wait_retry_after
 from retryhttp._utils import get_http_date
 
 from .conftest import MOCK_URL, rate_limited_response
@@ -11,7 +11,7 @@ from .conftest import MOCK_URL, rate_limited_response
 
 @retry(
     retry=retry_if_rate_limited(),
-    wait=wait_rate_limited(),
+    wait=wait_retry_after(),
     stop=stop_after_attempt(3),
 )
 def rate_limited_request():
