@@ -97,13 +97,11 @@ class wait_from_header(wait_base):
             return value
 
 
-class wait_rate_limited(wait_from_header):
+class wait_retry_after(wait_from_header):
     """Wait strategy to use when the server responds with a `Retry-After` header.
 
-    The `Retry-After` header may be sent with the `503 Service Unavailable` or
-    `429 Too Many Requests` status code. The header value may provide a date for when
-    you may retry the request, or an integer, indicating the number of seconds
-    to wait before retrying.
+    The header value may provide a date for when you may retry the request, or an
+    integer, indicating the number of seconds to wait before retrying.
 
     Args:
         fallback: Wait strategy to use if `Retry-After` header is not present, or unable
@@ -113,9 +111,14 @@ class wait_rate_limited(wait_from_header):
 
     def __init__(
         self,
-        fallback: wait_base = wait_exponential(),
+        wait_max: Union[PositiveFloat, PositiveInt, None] = 120.0,
+        fallback: Optional[wait_base] = None,
     ) -> None:
-        super().__init__(header="Retry-After", fallback=fallback)
+        super().__init__(header="Retry-After", wait_max=wait_max, fallback=fallback)
+
+
+# Aliased for backwards compatibility and convenience
+wait_rate_limited = wait_retry_after
 
 
 class wait_context_aware(wait_base):
@@ -151,7 +154,7 @@ class wait_context_aware(wait_base):
         wait_server_errors: wait_base = wait_random_exponential(),
         wait_network_errors: wait_base = wait_exponential(),
         wait_timeouts: wait_base = wait_random_exponential(),
-        wait_rate_limited: wait_base = wait_rate_limited(),
+        wait_rate_limited: wait_base = wait_retry_after(),
         server_error_codes: Union[Sequence[int], int] = (500, 502, 503, 504),
         network_errors: Union[
             Type[BaseException], Tuple[Type[BaseException], ...], None
