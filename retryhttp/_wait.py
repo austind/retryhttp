@@ -75,6 +75,11 @@ class wait_from_header(wait_base):
                     retry_after = datetime.strptime(value, HTTP_DATE_FORMAT)
                     retry_after = retry_after.replace(tzinfo=timezone.utc)
                     now = datetime.now(timezone.utc)
+                    if retry_after < now:
+                        raise ValueError(
+                            f'Date provided in header "{self.header}" '
+                            f"is in the past: {value}"
+                        )
                     return float((retry_after - now).seconds)
         raise ValueError(f'Unable to parse wait time from header: "{self.header}"')
 
