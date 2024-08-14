@@ -38,7 +38,8 @@ class wait_from_header(wait_base):
         ValueError: If `fallback` is `None`, and any one of the following is true:
             * header is not present;
             * the value cannot be parsed to a `float`;
-            * the value exceeds `wait_max`.
+            * the value exceeds `wait_max`;
+            * the value is a date in the past.
 
     """
 
