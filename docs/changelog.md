@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.2.0 (Current Stable)
+## v1.2.0
 
 * Added `wait_max` argument to [`retryhttp.wait_from_header`][] and [`retryhttp.wait_retry_after`][], which defaults to 120.0 seconds.
 * [`retryhttp._utils.is_rate_limited][]: revert behavior to correctly determine rate limiting by a `429 Too Many Requests` status.
@@ -9,7 +9,6 @@
 * [`retryhttp.wait_from_header`][]: Handle case if server responds with a date in the past.
 * [`retryhttp.wait_context_aware`][]: The `wait_server_errors` argument now defaults to [`retryhttp.wait_retry_after`][] with [`tenacity.wait_random_exponential][] as fallback, since some server errors may respond with a `Retry-After` header.
 * [`retryhttp.wait_context_aware`][]: The `wait_rate_limited` argument now has [`tenacity.wait_random_exponential`][] as fallback to [`retryhttp.wait_retry_after`][], to make retrying rate-limited requests more robust.
-* Move `py.typed` to correct location to prevent `mypy` errors.
 
 
 ## v1.1.0
