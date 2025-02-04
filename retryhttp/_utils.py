@@ -22,9 +22,9 @@ except ImportError:
     pass
 
 
-def get_default_network_errors() -> (
-    Tuple[Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...]
-):
+def get_default_network_errors() -> Tuple[
+    Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...
+]:
     """Get all network errors to use by default.
 
     Args:
@@ -56,9 +56,9 @@ def get_default_network_errors() -> (
     return tuple(exceptions)
 
 
-def get_default_timeouts() -> (
-    Tuple[Type[Union[httpx.TimeoutException, requests.Timeout]], ...]
-):
+def get_default_timeouts() -> Tuple[
+    Type[Union[httpx.TimeoutException, requests.Timeout]], ...
+]:
     """Get all timeout exceptions to use by default.
 
     Returns:
@@ -73,9 +73,9 @@ def get_default_timeouts() -> (
     return tuple(exceptions)
 
 
-def get_default_http_status_exceptions() -> (
-    Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
-):
+def get_default_http_status_exceptions() -> Tuple[
+    Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...
+]:
     """Get default HTTP status 4xx or 5xx exceptions.
 
     Returns:

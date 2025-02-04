@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Optional, Sequence, Tuple, Type, Union
 
 from tenacity import (
     RetryCallState,
@@ -25,7 +25,7 @@ from ._wait import wait_context_aware, wait_retry_after
 
 
 def retry(
-    func: Optional[Callable] = None,
+    func: Optional[F] = None,
     *,
     max_attempt_number: int = 3,
     retry_server_errors: bool = True,
@@ -42,7 +42,7 @@ def retry(
     ] = None,
     timeouts: Union[Type[BaseException], Tuple[Type[BaseException], ...], None] = None,
     **kwargs: Any,
-) -> Any:
+) -> F:
     """Retry potentially transient HTTP errors with sensible default behavior.
 
     By default, retries the following errors, for a total of 3 attempts, with
