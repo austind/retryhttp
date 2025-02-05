@@ -22,9 +22,7 @@ except ImportError:
     pass
 
 
-def get_default_network_errors() -> Tuple[
-    Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...
-]:
+def get_default_network_errors() -> Tuple[Type[BaseException], ...]:
     """Get all network errors to use by default.
 
     Args:
@@ -37,7 +35,7 @@ def get_default_network_errors() -> Tuple[
         N/A
 
     """
-    exceptions = []
+    exceptions: list[type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.extend(
             [
@@ -56,16 +54,14 @@ def get_default_network_errors() -> Tuple[
     return tuple(exceptions)
 
 
-def get_default_timeouts() -> Tuple[
-    Type[Union[httpx.TimeoutException, requests.Timeout]], ...
-]:
+def get_default_timeouts() -> Tuple[Type[BaseException], ...]:
     """Get all timeout exceptions to use by default.
 
     Returns:
         tuple: Timeout exceptions.
 
     """
-    exceptions = []
+    exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.TimeoutException)
     if _REQUESTS_INSTALLED:
@@ -73,16 +69,14 @@ def get_default_timeouts() -> Tuple[
     return tuple(exceptions)
 
 
-def get_default_http_status_exceptions() -> Tuple[
-    Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...
-]:
+def get_default_http_status_exceptions() -> Tuple[Type[BaseException], ...]:
     """Get default HTTP status 4xx or 5xx exceptions.
 
     Returns:
         tuple: HTTP status exceptions.
 
     """
-    exceptions = []
+    exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
     if _REQUESTS_INSTALLED:
@@ -90,7 +84,7 @@ def get_default_http_status_exceptions() -> Tuple[
     return tuple(exceptions)
 
 
-def is_rate_limited(exc: Union[BaseException, None]) -> bool:
+def is_rate_limited(exc: Optional[BaseException]) -> bool:
     """Whether a given exception indicates the user has been rate limited.
 
     Args:
@@ -100,7 +94,10 @@ def is_rate_limited(exc: Union[BaseException, None]) -> bool:
         bool: Whether exc indicates rate limiting.
 
     """
-    if isinstance(exc, get_default_http_status_exceptions()):
+    if exc is None:
+        return False
+    exceptions = get_default_http_status_exceptions()
+    if isinstance(exc, exceptions) and hasattr(exc, "response"):
         return exc.response.status_code == 429
     return False
 
@@ -120,9 +117,12 @@ def is_server_error(
         bool: whether exc indicates an error included in status_codes.
 
     """
+    if exc is None:
+        return False
     if isinstance(status_codes, int):
         status_codes = [status_codes]
-    if isinstance(exc, get_default_http_status_exceptions()):
+    exceptions = get_default_http_status_exceptions()
+    if isinstance(exc, exceptions) and hasattr(exc, "response"):
         return exc.response.status_code in status_codes
     return False
 
