@@ -68,7 +68,11 @@ class wait_from_header(wait_base):
         """
         if retry_state.outcome:
             exc = retry_state.outcome.exception()
-            if isinstance(exc, get_default_http_status_exceptions()):
+            if exc is None:
+                return 0
+            if isinstance(exc, get_default_http_status_exceptions()) and hasattr(
+                exc, "response"
+            ):
                 value = exc.response.headers.get(self.header)
                 if value is None:
                     raise ValueError(f"Header not present: {self.header}")
