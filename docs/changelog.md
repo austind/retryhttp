@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.1
+
+* Fixed all outstanding mypy errors. ([#20](https://github.com/austind/retryhttp/issues/20)
+
 ## v1.3.0
 
 * Fix typing error ([#15](https://github.com/austind/retryhttp/pull/15))
