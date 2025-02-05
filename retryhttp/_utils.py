@@ -22,9 +22,7 @@ except ImportError:
     pass
 
 
-def get_default_network_errors() -> (
-    Tuple[Union[Type[httpx.NetworkError], Type[requests.ConnectionError]], ...]
-):
+def get_default_network_errors() -> Tuple[Type[BaseException], ...]:
     """Get all network errors to use by default.
 
     Args:
@@ -37,7 +35,7 @@ def get_default_network_errors() -> (
         N/A
 
     """
-    exceptions = []
+    exceptions: list[type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.extend(
             [
@@ -56,16 +54,14 @@ def get_default_network_errors() -> (
     return tuple(exceptions)
 
 
-def get_default_timeouts() -> (
-    Tuple[Type[Union[httpx.TimeoutException, requests.Timeout]], ...]
-):
+def get_default_timeouts() -> Tuple[Type[BaseException], ...]:
     """Get all timeout exceptions to use by default.
 
     Returns:
         tuple: Timeout exceptions.
 
     """
-    exceptions = []
+    exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.TimeoutException)
     if _REQUESTS_INSTALLED:
@@ -73,16 +69,14 @@ def get_default_timeouts() -> (
     return tuple(exceptions)
 
 
-def get_default_http_status_exceptions() -> (
-    Tuple[Union[Type[httpx.HTTPStatusError], Type[requests.HTTPError]], ...]
-):
+def get_default_http_status_exceptions() -> Tuple[Type[BaseException], ...]:
     """Get default HTTP status 4xx or 5xx exceptions.
 
     Returns:
         tuple: HTTP status exceptions.
 
     """
-    exceptions = []
+    exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
     if _REQUESTS_INSTALLED:
