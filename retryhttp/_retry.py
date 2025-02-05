@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Optional, Sequence, Tuple, Type, Union, overload
 
 from tenacity import (
     RetryCallState,
@@ -24,6 +24,32 @@ from ._utils import (
 from ._wait import wait_context_aware, wait_retry_after
 
 
+@overload
+def retry(func: F) -> F: ...
+
+
+@overload
+def retry(
+    func: None = None,
+    *,
+    max_attempt_number: int = 3,
+    retry_server_errors: bool = True,
+    retry_network_errors: bool = True,
+    retry_timeouts: bool = True,
+    retry_rate_limited: bool = True,
+    wait_server_errors: wait_base = wait_random_exponential(),
+    wait_network_errors: wait_base = wait_exponential(),
+    wait_timeouts: wait_base = wait_random_exponential(),
+    wait_rate_limited: wait_base = wait_retry_after(),
+    server_error_codes: Union[Sequence[int], int] = (500, 502, 503, 504),
+    network_errors: Union[
+        Type[BaseException], Tuple[Type[BaseException], ...], None
+    ] = None,
+    timeouts: Union[Type[BaseException], Tuple[Type[BaseException], ...], None] = None,
+    **kwargs: Any,
+) -> Callable[[F], F]: ...
+
+
 def retry(
     func: Optional[F] = None,
     *,
@@ -42,7 +68,7 @@ def retry(
     ] = None,
     timeouts: Union[Type[BaseException], Tuple[Type[BaseException], ...], None] = None,
     **kwargs: Any,
-) -> F:
+) -> Union[F, Callable[[F], F]]:
     """Retry potentially transient HTTP errors with sensible default behavior.
 
     By default, retries the following errors, for a total of 3 attempts, with
@@ -105,7 +131,7 @@ def retry(
     if timeouts is None:
         timeouts = get_default_timeouts()
 
-    retry_strategies = []
+    retry_strategies: list[retry_base] = []
     if retry_server_errors:
         retry_strategies.append(
             retry_if_server_error(server_error_codes=server_error_codes)
