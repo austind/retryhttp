@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.0
+
+* Fix typing error ([#15](https://github.com/austind/retryhttp/pull/15))
+* Add default fallback wait strategy [`tenacity.wait_random_exponential`][] to [`retryhttp.wait_from_header`][] and [`retryhttp.wait_retry_after`][] ([#17](https://github.com/austind/retryhttp/pull/))
+
 ## v1.2.0
 
 * Added `wait_max` argument to [`retryhttp.wait_from_header`][] and [`retryhttp.wait_retry_after`][], which defaults to 120.0 seconds.

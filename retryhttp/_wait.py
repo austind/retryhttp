@@ -32,7 +32,7 @@ class wait_from_header(wait_base):
             program will hang if the server responds with an excessive wait value.
         fallback (wait_base): Wait strategy to use if `header` is not present,
             or unable to parse to a `float` value, or if value parsed from header
-            exceeds `wait_max`. Defaults to `None`.
+            exceeds `wait_max`. Defaults to `tenacity.wait_exponential`.
 
     Raises:
         ValueError: If `fallback` is `None`, and any one of the following is true:
@@ -47,7 +47,7 @@ class wait_from_header(wait_base):
         self,
         header: str,
         wait_max: Union[PositiveFloat, PositiveInt, None] = 120.0,
-        fallback: Optional[wait_base] = None,
+        fallback: Optional[wait_base] = wait_exponential(),
     ) -> None:
         self.header = header
         self.wait_max = float(wait_max) if wait_max else None
@@ -69,7 +69,9 @@ class wait_from_header(wait_base):
         if retry_state.outcome:
             exc = retry_state.outcome.exception()
             if isinstance(exc, get_default_http_status_exceptions()):
-                value = exc.response.headers.get(self.header, "")
+                value = exc.response.headers.get(self.header)
+                if value is None:
+                    raise ValueError(f"Header not present: {self.header}")
                 if re.match(r"^\d+$", value):
                     return float(value)
                 else:
@@ -115,7 +117,7 @@ class wait_retry_after(wait_from_header):
             program will hang if the server responds with an excessive wait value.
         fallback (wait_base): Wait strategy to use if `header` is not present,
             or unable to parse to a `float` value, or if value parsed from header
-            exceeds `wait_max`. Defaults to `None`.
+            exceeds `wait_max`. Defaults to `tenacity.wait_exponential()`.
 
     Raises:
         ValueError: If `fallback` is `None`, and any one of the following is true:
@@ -129,7 +131,7 @@ class wait_retry_after(wait_from_header):
     def __init__(
         self,
         wait_max: Union[PositiveFloat, PositiveInt, None] = 120.0,
-        fallback: Optional[wait_base] = None,
+        fallback: Optional[wait_base] = wait_exponential(),
     ) -> None:
         super().__init__(header="Retry-After", wait_max=wait_max, fallback=fallback)
 

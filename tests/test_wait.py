@@ -11,7 +11,7 @@ from .conftest import MOCK_URL, scheduled_downtime_response
 
 @retry(
     retry=retry_if_server_error(),
-    wait=wait_from_header(header="Retry-After", wait_max=5),
+    wait=wait_from_header(header="Retry-After", wait_max=5, fallback=None),
     stop=stop_after_attempt(3),
 )
 def planned_downtime_impatient_no_fallback():
