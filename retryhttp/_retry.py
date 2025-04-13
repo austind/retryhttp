@@ -145,18 +145,18 @@ def retry(
     if not retry_strategies:
         raise RuntimeError("No retry strategies enabled.")
 
-    retry = kwargs.get("retry") or retry_any(*retry_strategies)
+    retry = kwargs.pop("retry", None) or retry_any(*retry_strategies)
 
     # We don't need to conditionally build our wait strategy since each strategy
     # will only apply if the corresponding retry strategy is in use.
-    wait = kwargs.get("wait") or wait_context_aware(
+    wait = kwargs.pop("wait", None) or wait_context_aware(
         wait_server_errors=wait_server_errors,
         wait_network_errors=wait_network_errors,
         wait_timeouts=wait_timeouts,
         wait_rate_limited=wait_rate_limited,
     )
 
-    stop = kwargs.get("stop") or stop_after_attempt(max_attempt_number)
+    stop = kwargs.pop("stop", None) or stop_after_attempt(max_attempt_number)
 
     def decorator(func: F) -> F:
         return tenacity_retry(retry=retry, wait=wait, stop=stop, **kwargs)(func)
