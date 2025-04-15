@@ -53,6 +53,9 @@ def get_example():
     response.raise_for_status()
 ```
 
+!!! note
+    `retryhttp` works by catching exceptions, so your code must raise those exceptions. Most of the time, all you need is to call `response.raise_for_status()`. Be sure not to catch those exceptions in your own `try..except` block.
+
 ## Advanced Usage
 
 You don't have to use the [`retryhttp.retry`][] decorator, which is provided purely for convenience. If you prefer, you can use [`tenacity.retry`](https://tenacity.readthedocs.io/en/latest/api.html#tenacity.retry) and roll your own approach.
