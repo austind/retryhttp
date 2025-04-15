@@ -62,4 +62,4 @@ def example():
 
 ## Contributing
 
-Contributions welcome! Open a discussion and let's chat about your idea. Looking forward to working with you!
+Contributions welcome! Bug fixes and minor tweaks can jump straight to a [pull request](https://github.com/austind/retryhttp/compare). For more involved changes, [open an issue](https://github.com/austind/retryhttp/issues/new/choose) and let's chat about your idea. Looking forward to working with you!
