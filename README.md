@@ -19,22 +19,21 @@ Several HTTP errors are often transient, and might succeed if retried:
 
 This project aims to simplify retrying these, by extending [`tenacity`](https://tenacity.readthedocs.io/) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
 
-Supports exceptions raised by both [`requests`](https://docs.python-requests.org/en/latest/index.html) and [`httpx`](https://python-httpx.org/).
+Supports both [`requests`](https://docs.python-requests.org/en/latest/index.html) and [`httpx`](https://python-httpx.org/) natively, but could be customized to use with any library that raises exceptions for the conditions listed above.
 
 ## Install
 
 Install from PyPI:
 
 ```sh
-# Supports both HTTPX and requests
-pip install retryhttp
+pip install retryhttp  # Supports both HTTPX and requests
 ```
 
-You can also install support for only HTTPX or requests:
+You can also install support for only HTTPX or requests, if you would rather not install unnecessary dependencies:
 
 ```sh
-pip install retryhttp[httpx] # Supports only HTTPX
-pip install retryhttp[requests] # Supports only requests
+pip install retryhttp[httpx]  # Supports only HTTPX
+pip install retryhttp[requests]  # Supports only requests
 ```
 
 Or, install the latest development snapshot from git:
@@ -49,8 +48,8 @@ pip install git+https://github.com/austind/retryhttp.git@develop
 import httpx
 from retryhttp import retry
 
-# Retries retryable status codes (429, 500, 502, 503, 504), network errors,
-# and timeouts, up to 3 times, with appropriate wait strategies for each
+# Retries safely retryable status codes (429, 500, 502, 503, 504), network errors,
+# and timeouts, up to a total of 3 times, with appropriate wait strategies for each
 # type of error. All of these behaviors are customizable.
 @retry
 def example():
@@ -62,4 +61,4 @@ def example():
 
 ## Contributing
 
-Contributions welcome! Bug fixes and minor tweaks can jump straight to a [pull request](https://github.com/austind/retryhttp/compare). For more involved changes, [open an issue](https://github.com/austind/retryhttp/issues/new/choose) and let's chat about your idea. Looking forward to working with you!
+Contributions welcome! Bug fixes and minor tweaks can jump straight to a [pull request](https://github.com/austind/retryhttp/compare). For more involved changes, [open an issue](https://github.com/austind/retryhttp/issues/new/choose) and let's chat about your idea. Thanks for your contribution!
