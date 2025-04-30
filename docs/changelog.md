@@ -1,12 +1,16 @@
 # Changelog
 
+## v1.3.3
+
+* Bugfix: Pass error types to wait strategy in retry decorator ([#25](https://github.com/austind/retryhttp/pull/25))
+
 ## v1.3.2
 
-* Bugfix: Don't pass `stop`, `wait`, and `retry` keyword arguments from [`retryhttp.retry`][] on to `tenacity.retry()` ([#23](https://github.com/austind/retryhttp/issues/23))
+* Bugfix: Don't pass `stop`, `wait`, and `retry` keyword arguments from [`retryhttp.retry`][] on to `tenacity.retry()` ([#23](https://github.com/austind/retryhttp/pull/23))
 
 ## v1.3.1
 
-* Fixed all outstanding mypy errors. ([#20](https://github.com/austind/retryhttp/issues/20)
+* Fixed all outstanding mypy errors. ([#20](https://github.com/austind/retryhttp/issues/20))
 
 ## v1.3.0
 
