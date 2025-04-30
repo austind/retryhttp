@@ -154,6 +154,9 @@ def retry(
         wait_network_errors=wait_network_errors,
         wait_timeouts=wait_timeouts,
         wait_rate_limited=wait_rate_limited,
+        server_error_codes=server_error_codes,
+        network_errors=network_errors,
+        timeouts=timeouts,
     )
 
     stop = kwargs.pop("stop", None) or stop_after_attempt(max_attempt_number)
