@@ -26,7 +26,7 @@ Supports both [`requests`](https://docs.python-requests.org/en/latest/index.html
 Install from PyPI:
 
 ```sh
-pip install retryhttp  # Supports both HTTPX and requests
+pip install retryhttp[all]  # Supports both HTTPX and requests
 ```
 
 You can also install support for only HTTPX or requests, if you would rather not install unnecessary dependencies:

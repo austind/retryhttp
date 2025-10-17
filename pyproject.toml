@@ -28,10 +28,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "httpx",
     "pydantic",
-    "requests",
-    "types-requests",
     "tenacity"
 ]
 
@@ -39,12 +36,15 @@ dependencies = [
 [project.optional-dependencies]
 httpx = [
   "httpx",
-  "tenacity",
 ]
 requests = [
   "requests",
   "types-requests",
-  "tenacity",
+]
+all = [
+  "httpx",
+  "requests",
+  "types-requests",
 ]
 dev = [
   "pytest",
