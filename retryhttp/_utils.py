@@ -6,6 +6,7 @@ from ._types import HTTPDate
 
 _HTTPX_INSTALLED = False
 _REQUESTS_INSTALLED = False
+_AIOHTTP_INSTALLED = False
 
 try:
     import httpx
@@ -18,6 +19,13 @@ try:
     import requests
 
     _REQUESTS_INSTALLED = True
+except ImportError:
+    pass
+
+try:
+    import aiohttp
+
+    _AIOHTTP_INSTALLED = True
 except ImportError:
     pass
 
@@ -51,6 +59,8 @@ def get_default_network_errors() -> Tuple[Type[BaseException], ...]:
                 requests.exceptions.ChunkedEncodingError,
             ]
         )
+    if _AIOHTTP_INSTALLED:
+        exceptions.append(aiohttp.ClientConnectionError)
     return tuple(exceptions)
 
 
@@ -66,6 +76,8 @@ def get_default_timeouts() -> Tuple[Type[BaseException], ...]:
         exceptions.append(httpx.TimeoutException)
     if _REQUESTS_INSTALLED:
         exceptions.append(requests.Timeout)
+    if _AIOHTTP_INSTALLED:
+        exceptions.append(aiohttp.ServerTimeoutError)
     return tuple(exceptions)
 
 
@@ -81,6 +93,8 @@ def get_default_http_status_exceptions() -> Tuple[Type[BaseException], ...]:
         exceptions.append(httpx.HTTPStatusError)
     if _REQUESTS_INSTALLED:
         exceptions.append(requests.HTTPError)
+    if _AIOHTTP_INSTALLED:
+        exceptions.append(aiohttp.ClientResponseError)
     return tuple(exceptions)
 
 
@@ -99,6 +113,8 @@ def is_rate_limited(exc: Optional[BaseException]) -> bool:
     exceptions = get_default_http_status_exceptions()
     if isinstance(exc, exceptions) and hasattr(exc, "response"):
         return exc.response.status_code == 429
+    if isinstance(exc, exceptions) and hasattr(exc, "status"):  # for aiohttp.ClientResponseError
+        return exc.status == 429
     return False
 
 
@@ -124,6 +140,8 @@ def is_server_error(
     exceptions = get_default_http_status_exceptions()
     if isinstance(exc, exceptions) and hasattr(exc, "response"):
         return exc.response.status_code in status_codes
+    if isinstance(exc, exceptions) and hasattr(exc, "status"):  # for aiohttp.ClientResponseError
+        return exc.status in status_codes
     return False
 
 
