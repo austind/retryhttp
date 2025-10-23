@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+
+* Added support for `aiohttp` ([#28])(https://github.com/austind/retryhttp/pull/28)
+* Dropped support for Python 3.8, added support for Python 3.13 ([#29](https://github.com/austind/retryhttp/pull/29))
+* Bugfix: Prevent installing both `requests` and `httpx` unless specified ([#26](https://github.com/austind/retryhttp/pull/26))
+
 ## v1.3.3
 
 * Bugfix: Pass error types to wait strategy in retry decorator ([#25](https://github.com/austind/retryhttp/pull/25))
