@@ -1,3 +1,6 @@
 httpx
 tenacity
 pydantic
+aiohttp
+requests
+types-requests

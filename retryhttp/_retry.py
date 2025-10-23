@@ -87,9 +87,11 @@ def retry(
         - `httpx.WriteError`
         - `requests.ConnectionError`
         - `requests.exceptions.ChunkedEncodingError`
+        - `aiohttp.ClientConnectionError`
     - Timeouts:
         - `httpx.TimeoutException`
         - `requests.Timeout`
+        - `aiohttp.ServerTimeoutError`
 
     Args:
         max_attempt_number: Total times to attempt a request. Includes the first attempt
@@ -112,11 +114,13 @@ def retry(
             - `httpx.WriteError`
             - `requests.ConnectError`
             - `requests.exceptions.ChunkedEncodingError`
+            - `aiohttp.ClientConnectionError`
         timeouts: One or more exceptions that will trigger `wait_timeouts` if
             `retry_timeouts` is `True`. Defaults to:
 
             - `httpx.TimeoutException`
             - `requests.Timeout`
+            - `aiohttp.ServerTimeoutError`
 
     Returns:
         Decorated function.
@@ -181,6 +185,7 @@ class retry_if_network_error(retry_if_exception_type):
             - `httpx.WriteError`
             - `requests.ConnectionError`
             - `requests.exceptions.ChunkedEncodingError`
+            - `aiohttp.ClientConnectionError`
 
     """
 
@@ -237,6 +242,8 @@ class retry_if_timeout(retry_if_exception_type):
             - `httpx.ReadTimeout`
             - `httpx.WriteTimeout`
             - `requests.Timeout`
+            - `aiohttp.ClientConnectionError`
+
     """
 
     def __init__(

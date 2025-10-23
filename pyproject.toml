@@ -46,6 +46,10 @@ all = [
   "requests",
   "types-requests",
 ]
+aiohttp = [
+  "aiohttp",
+  "tenacity",
+]
 dev = [
   "pytest",
   "pytest-xdist",
