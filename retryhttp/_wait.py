@@ -70,24 +70,26 @@ class wait_from_header(wait_base):
             exc = retry_state.outcome.exception()
             if exc is None:
                 return 0
-            if isinstance(exc, get_default_http_status_exceptions()) and hasattr(
-                exc, "response"
-            ):
-                value = exc.response.headers.get(self.header)
-                if value is None:
-                    raise ValueError(f"Header not present: {self.header}")
-                if re.match(r"^\d+$", value):
-                    return float(value)
-                else:
-                    retry_after = datetime.strptime(value, HTTP_DATE_FORMAT)
-                    retry_after = retry_after.replace(tzinfo=timezone.utc)
-                    now = datetime.now(timezone.utc)
-                    if retry_after < now:
-                        raise ValueError(
-                            f'Date provided in header "{self.header}" '
-                            f"is in the past: {value}"
-                        )
-                    return float((retry_after - now).seconds)
+            value = None
+            if isinstance(exc, get_default_http_status_exceptions()):
+                if hasattr(exc, "response"):
+                    value = exc.response.headers.get(self.header)
+                elif hasattr(exc, "status"):  # for aiohttp.ClientResponseError
+                    value = exc.headers.get(self.header)
+            if value is None:
+                raise ValueError(f"Header not present: {self.header}")
+            if re.match(r"^\d+$", value):
+                return float(value)
+            else:
+                retry_after = datetime.strptime(value, HTTP_DATE_FORMAT)
+                retry_after = retry_after.replace(tzinfo=timezone.utc)
+                now = datetime.now(timezone.utc)
+                if retry_after < now:
+                    raise ValueError(
+                        f'Date provided in header "{self.header}" '
+                        f"is in the past: {value}"
+                    )
+                return float((retry_after - now).seconds)
         raise ValueError(f'Unable to parse wait time from header: "{self.header}"')
 
     def __call__(self, retry_state: RetryCallState) -> float:
@@ -162,6 +164,7 @@ class wait_context_aware(wait_base):
             - `httpx.WriteError`
             - `requests.ConnectionError`
             - `requests.exceptions.ChunkedEncodingError`
+            - `aiohttp.ClientConnectionError`
         timeouts: One or more exceptions that will trigger `wait_timeouts`. If omitted,
             defaults to:
 
@@ -169,6 +172,7 @@ class wait_context_aware(wait_base):
             - `httpx.ReadTimeout`
             - `httpx.WriteTimeout`
             - `requests.Timeout`
+            - `aiohttp.ServerTimeoutError`
 
     """
 
