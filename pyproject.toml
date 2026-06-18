@@ -5,7 +5,7 @@ version = "1.4.0"
 description = "Retry potentially transient HTTP errors in Python."
 license = {file = "LICENSE"}
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
   {name = "Austin de Coup-Crank", email = "austindcc@gmail.com"},
 ]
@@ -19,7 +19,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -86,7 +85,7 @@ packages = ["retryhttp"]
 [tool.ruff]
 line-length = 100
 indent-width = 4
-target-version = "py38"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]

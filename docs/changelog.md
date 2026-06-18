@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Dropped support for Python 3.9. The minimum supported version is now Python 3.10.
+
 ## v1.4.0
 
 * Added support for `aiohttp` ([#28])(https://github.com/austind/retryhttp/pull/28)
