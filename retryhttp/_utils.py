@@ -5,6 +5,7 @@ from ._constants import HTTP_DATE_FORMAT
 from ._types import HTTPDate
 
 _HTTPX_INSTALLED = False
+_HTTPX2_INSTALLED = False
 _REQUESTS_INSTALLED = False
 _AIOHTTP_INSTALLED = False
 
@@ -12,6 +13,13 @@ try:
     import httpx
 
     _HTTPX_INSTALLED = True
+except ImportError:
+    pass
+
+try:
+    import httpx2
+
+    _HTTPX2_INSTALLED = True
 except ImportError:
     pass
 
@@ -52,6 +60,14 @@ def get_default_network_errors() -> Tuple[Type[BaseException], ...]:
                 httpx.WriteError,
             ]
         )
+    if _HTTPX2_INSTALLED:
+        exceptions.extend(
+            [
+                httpx2.ConnectError,
+                httpx2.ReadError,
+                httpx2.WriteError,
+            ]
+        )
     if _REQUESTS_INSTALLED:
         exceptions.extend(
             [
@@ -74,6 +90,8 @@ def get_default_timeouts() -> Tuple[Type[BaseException], ...]:
     exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.TimeoutException)
+    if _HTTPX2_INSTALLED:
+        exceptions.append(httpx2.TimeoutException)
     if _REQUESTS_INSTALLED:
         exceptions.append(requests.Timeout)
     if _AIOHTTP_INSTALLED:
@@ -91,6 +109,8 @@ def get_default_http_status_exceptions() -> Tuple[Type[BaseException], ...]:
     exceptions: list[Type[BaseException]] = []
     if _HTTPX_INSTALLED:
         exceptions.append(httpx.HTTPStatusError)
+    if _HTTPX2_INSTALLED:
+        exceptions.append(httpx2.HTTPStatusError)
     if _REQUESTS_INSTALLED:
         exceptions.append(requests.HTTPError)
     if _AIOHTTP_INSTALLED:

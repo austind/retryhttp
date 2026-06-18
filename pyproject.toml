@@ -36,12 +36,16 @@ dependencies = [
 httpx = [
   "httpx",
 ]
+httpx2 = [
+  "httpx2",
+]
 requests = [
   "requests",
   "types-requests",
 ]
 all = [
   "httpx",
+  "httpx2",
   "requests",
   "types-requests",
 ]
@@ -53,6 +57,7 @@ dev = [
   "pytest",
   "pytest-xdist",
   "respx",
+  "pytest-httpx2",
   "ruff",
   "nox",
   "types-requests",
