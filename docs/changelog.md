@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## v1.5.0
 
-* Added support for `httpx2`.
+* Added support for `httpx2` ([#32](https://github.com/austind/retryhttp/pull/32)).
 * Dropped support for Python 3.9. The minimum supported version is now Python 3.10.
 
 ## v1.4.0

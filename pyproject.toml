@@ -1,7 +1,7 @@
 
 [project]
 name = "retryhttp"
-version = "1.4.0"
+version = "1.5.0"
 description = "Retry potentially transient HTTP errors in Python."
 license = {file = "LICENSE"}
 readme = "README.md"
