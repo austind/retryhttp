@@ -1,6 +1,6 @@
 ## Overview
 
-`retryhttp` makes it easy to retry potentially transient HTTP errors when using `httpx`, `requests` or `aiohttp`.
+`retryhttp` makes it easy to retry potentially transient HTTP errors when using `httpx`, `httpx2`, `requests` or `aiohttp`.
 
 !!! note
     Errors that you can safely retry vary from service to service.
@@ -51,6 +51,22 @@ def get_example():
 def get_example():
     response = httpx.get("https://example.com/")
     response.raise_for_status()
+```
+
+`httpx2` works the same way as `httpx`; just swap the import and call:
+
+```python
+import httpx2
+from retryhttp import retry
+
+# Retries safely retryable status codes (429, 500, 502, 503, 504), network errors,
+# and timeouts, up to a total of 3 times, with appropriate wait strategies for each
+# type of error.
+@retry
+def get_example():
+    response = httpx2.get("https://example.com/")
+    response.raise_for_status()
+    return response.text
 ```
 
 !!! note

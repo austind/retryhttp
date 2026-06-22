@@ -19,7 +19,7 @@ Several HTTP errors are often transient, and might succeed if retried:
 
 This project aims to simplify retrying these, by extending [`tenacity`](https://tenacity.readthedocs.io/) with custom retry and wait strategies, as well as a custom decorator. Defaults are sensible for most use cases, but are fully customizable.
 
-Supports both [`requests`](https://docs.python-requests.org/en/latest/index.html), [`httpx`](https://python-httpx.org/) and [`aiohttp`](https://docs.aiohttp.org/) natively, but could be customized to use with any library that raises exceptions for the conditions listed above.
+Supports [`requests`](https://docs.python-requests.org/en/latest/index.html), [`httpx`](https://python-httpx.org/), [`httpx2`](https://httpx2.pydantic.dev/) and [`aiohttp`](https://docs.aiohttp.org/) natively, but could be customized to use with any library that raises exceptions for the conditions listed above.
 
 ## Install
 
@@ -33,6 +33,7 @@ You can also install support for only HTTPX or requests, if you would rather not
 
 ```sh
 pip install retryhttp[httpx]  # Supports only HTTPX
+pip install retryhttp[httpx2]  # Supports only HTTPX2
 pip install retryhttp[requests]  # Supports only requests
 pip install retryhttp[aiohttp]  # Supports only aiohttp
 ```

@@ -1,7 +1,7 @@
 import nox
 
 
-@nox.session(python=["3.9", "3.10", "3.11", "3.12", "3.13"], tags=["test"])
+@nox.session(python=["3.10", "3.11", "3.12", "3.13"], tags=["test"])
 def test(session: nox.Session) -> None:
     session.install(".[all,dev]")
     session.run("pytest", "-n", "4")
